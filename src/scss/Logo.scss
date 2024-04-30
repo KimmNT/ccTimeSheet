@@ -1,0 +1,35 @@
+//COLORES
+$light:#fff;
+$dark:#000;
+$primary:#1A4D2E;
+
+
+html{
+    font-size: 62.5%;
+}
+
+body{
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.logo__container{
+    width: 15rem;
+    height: 5rem;
+    background: $primary;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: .7rem;
+    .logo__text{
+        font-size: 2rem;
+        font-weight: 900;
+        color: $light;
+        border: .2rem solid $light;
+        width: 14rem;
+        height: 4rem;    
+        border-radius: .5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

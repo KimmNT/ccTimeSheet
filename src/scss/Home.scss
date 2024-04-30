@@ -1,0 +1,141 @@
+//COLORES
+$light:#fff;
+$dark:#000;
+$primary:#1A4D2E;
+
+
+html{
+    font-size: 62.5%;
+}
+
+body{
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.home__container{
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    background: #F5EFE6;
+    .home__content{
+        position: relative;
+        height: 100%;
+        width: 100%;
+        max-width: 395px !important;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6rem;
+        .home__header{
+            padding-top: 2rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            .header__thumbnail{
+                font-size: 2rem;
+                color: #666666;
+                .user__name{
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: $dark;
+                }
+            }
+            .header__back{
+                .header__back_icon{
+                    font-size: 2rem;
+                    color: #DD5746;
+                    cursor: pointer;
+                }
+            }
+        }
+        .home__date{
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 2rem;
+            .home__date_current{
+                font-weight: 600;
+            }
+        }
+        .home__check_btn{
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            gap: 3rem;
+            .check__btn{
+                width: 15rem;
+                height: 15rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: 50%;
+                background-color: $primary;
+                cursor: pointer;
+                .btn__icon{
+                    color: $light;
+                    font-size: 9rem;
+                &.checkin{
+                    transform: rotate(45deg);
+
+                }
+                &.checkout{
+                    transform: rotate(45deg);
+
+                }}
+            }
+            .btn__text{
+                font-size: 3rem;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+        }
+        .home__history{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            .history__item{
+                width: 40%;
+                background: #FFF;
+                padding: 2rem 1rem;
+                border-radius: 1rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 3rem;
+                .item__header{
+                    display: flex;
+                    justify-content: space-around;
+                    align-items: center;
+                    width: 100%;
+                    .item__icon{
+                        width: 3rem;
+                        height: 3rem;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        background-color: $primary;
+                        border-radius: 50%;
+                        color: $light;
+                        font-size: 2rem;
+                        &.checkout{
+                        transform: rotate(45deg);
+                        }
+                        &.checkin{
+                        transform: rotate(45deg);
+                        }
+                    }
+                    .item__name{
+                        font-size: 1.5rem;
+                        font-weight: 600;
+                    }
+                }
+                .item__number{
+                    font-size: 2rem;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+}
