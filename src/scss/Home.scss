@@ -42,9 +42,15 @@ body{
                 }
             }
             .header__back{
+                padding: .5rem 1.5rem;
+                background: #DD5746;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: .5rem;
                 .header__back_icon{
                     font-size: 2rem;
-                    color: #DD5746;
+                    color: $light;
                     cursor: pointer;
                 }
             }
@@ -90,6 +96,35 @@ body{
                 font-weight: 600;
             }
         }
+        .home__end_of_day{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 3rem;
+            .like__btn{
+                width: 13rem;
+                height: 13rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: 50%;
+                background-color: #FFC100;
+                cursor: pointer;
+                .like__icon{
+                    color: $light;
+                    font-size: 7rem;
+                }
+            }
+            .headline{
+                font-size: 3rem;
+                font-weight: 600;
+            }
+            .total{
+                font-size: 2rem;
+                text-align: center;
+            }
+        }
         .home__history{
             display: flex;
             justify-content: space-between;
@@ -97,11 +132,11 @@ body{
             .history__item{
                 width: 40%;
                 background: #FFF;
-                padding: 2rem 1rem;
+                padding: 1rem;
                 border-radius: 1rem;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
+                justify-content: space-between;
                 align-items: center;
                 gap: 3rem;
                 .item__header{
@@ -109,13 +144,15 @@ body{
                     justify-content: space-around;
                     align-items: center;
                     width: 100%;
+                    background: $primary;
+                    border-radius: .7rem;
                     .item__icon{
                         width: 3rem;
                         height: 3rem;
                         display: flex;
                         justify-content: center;
                         align-items: center;
-                        background-color: $primary;
+                        // background-color: $primary;
                         border-radius: 50%;
                         color: $light;
                         font-size: 2rem;
@@ -129,6 +166,7 @@ body{
                     .item__name{
                         font-size: 1.5rem;
                         font-weight: 600;
+                        color: $light;
                     }
                 }
                 .item__number{

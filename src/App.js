@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./components/Login";
 import Home from "./components/Home";
+import Admin from "./components/Admin";
 
 export default function App() {
   // const currentUser = false;
@@ -19,6 +20,14 @@ export default function App() {
           element={
             // <RequireAuth>
             <Home />
+            // </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin-manage"
+          element={
+            // <RequireAuth>
+            <Admin />
             // </RequireAuth>
           }
         />
