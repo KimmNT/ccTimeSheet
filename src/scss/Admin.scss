@@ -118,7 +118,6 @@ body{
                                 border: none;
                                 border-bottom: .2rem solid $dark;
                                 font-size: 2rem;
-                                font-weight: 600;
                                 padding: 0 1rem;
                             }
                             &.role{
@@ -192,6 +191,7 @@ body{
                                 justify-content: center;
                                 align-items: center;
                                 border-radius: .5rem;
+                                cursor: pointer;
                                 .delete__btn_icon{
                                     font-size: 2rem;
                                     color: $light;

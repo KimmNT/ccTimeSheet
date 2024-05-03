@@ -13,7 +13,11 @@ import {
   where,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+  signOut,
+} from "firebase/auth";
 
 export default function Admin() {
   //NAVIGATION
@@ -28,7 +32,6 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
 
   const { state } = useLocation();
-  const userId = state?.userId;
   const userName = state?.userName;
 
   const navigate = useNavigate();
@@ -55,6 +58,7 @@ export default function Admin() {
         userPassword
       );
       await setDoc(doc(db, "users", res.user.uid), {
+        id: res.user.uid,
         username: userEmail,
         password: userPassword,
         role: userRole,
@@ -83,13 +87,19 @@ export default function Admin() {
     }
   };
 
+  //HANDLE LOG OUT
+  const handleLogOut = () => {
+    signOut(auth);
+    navigateToPage("/");
+  };
+
   return (
     <div className="admin__container">
       <div className="admin__content">
         <div className="admin__header">
           <div className="admin__header_info">
             <div className="header__thumbnail">Good Morning! {userName}</div>
-            <div className="header__back" onClick={() => navigateToPage("/")}>
+            <div className="header__back" onClick={handleLogOut}>
               <FaSignOutAlt className="header__back_icon" />
             </div>
           </div>

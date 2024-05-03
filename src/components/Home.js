@@ -17,6 +17,7 @@ import {
   FaSignOutAlt,
   FaStar,
 } from "react-icons/fa";
+import { signOut } from "firebase/auth";
 
 export default function Home() {
   const [users, setUsers] = useState([]);
@@ -162,6 +163,12 @@ export default function Home() {
     return `${hours} hours ${minutes} minutes ${seconds} seconds`;
   }
 
+  //HANDLE LOG OUT
+  const handleLogOut = () => {
+    signOut(auth);
+    navigateToPage("/");
+  };
+
   return (
     <div className="home__container">
       <div className="home__content">
@@ -169,7 +176,7 @@ export default function Home() {
           <div className="header__thumbnail">
             Good Morning! <div className="user__name">{userName}</div>
           </div>
-          <div className="header__back" onClick={() => navigateToPage("/")}>
+          <div className="header__back" onClick={handleLogOut}>
             <FaSignOutAlt className="header__back_icon" />
           </div>
         </div>
