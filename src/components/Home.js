@@ -25,6 +25,9 @@ export default function Home() {
   const [checkOutValue, setCheckOutValue] = useState([]);
 
   const navigate = useNavigate();
+  const navigateToPage = (pageUrl, stateData) => {
+    navigate(pageUrl, { state: stateData });
+  };
   const { state } = useLocation();
   const userId = state?.userId;
   const userName = state?.userName;
@@ -86,10 +89,6 @@ export default function Home() {
     };
     fetchData();
   }, []);
-
-  const navigateToPage = (pageUrl, stateData) => {
-    navigate(pageUrl, { state: stateData });
-  };
 
   // Handle check-in
   const handleCheckIn = async () => {

@@ -60,7 +60,11 @@ body{
                     outline: none;
                 }
             }
-            .form__error{}
+            .form__error{
+                font-size: 2rem;
+                color: #C40C0C;
+                font-weight: 600;
+            }
         }
         .login__btn{
             background-color: $dark;
