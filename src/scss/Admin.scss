@@ -85,6 +85,9 @@ body{
                         background: transparent;
                         color: $dark;
                     }
+                    .rotate{
+                        transform: rotate(45deg);
+                    }
                 }
             }
         }
@@ -176,11 +179,11 @@ body{
                             .user__info{
                                 width: 90%;
                                 .user__name{
-                                    font-size: 2rem;
+                                    font-size: 1.5rem;
                                     font-weight: 600;
                                 }
                                 .user__role{
-                                    font-size: 2rem;
+                                    font-size: 1.5rem;
                                 }
                             }
                             .user__delete_btn{

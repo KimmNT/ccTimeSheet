@@ -5,6 +5,7 @@ import {
   doc,
   getDocs,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
@@ -13,7 +14,6 @@ import "../scss/Home.scss";
 import {
   FaLongArrowAltDown,
   FaLongArrowAltUp,
-  FaRegThumbsUp,
   FaSignOutAlt,
   FaStar,
 } from "react-icons/fa";
@@ -22,8 +22,12 @@ import { signOut } from "firebase/auth";
 export default function Home() {
   const [users, setUsers] = useState([]);
   const [attendanceValue, setAttendanceValue] = useState([]);
-  const [checkInValue, setCheckInValue] = useState([]);
-  const [checkOutValue, setCheckOutValue] = useState([]);
+  const [checkInValue, setCheckInValue] = useState("");
+  const [checkOutValue, setCheckOutValue] = useState("");
+  const [workingTimeId, setWorkingTimeId] = useState("");
+  const [isBreakTime, setIsBreakTime] = useState(false);
+  const [breakTimeValue, setBreakTimeValue] = useState("");
+  const [breakInput, setBreakInput] = useState(0);
 
   const navigate = useNavigate();
   const navigateToPage = (pageUrl, stateData) => {
@@ -35,80 +39,91 @@ export default function Home() {
 
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString();
-  const formattedTime = currentDate.toLocaleTimeString();
+  const options = { hour12: false }; // Use 24-hour format
+  const formattedTime = currentDate.toLocaleTimeString(undefined, options);
 
   // Get users from Firestore
-  const getUsers = async () => {
-    const data = await getDocs(collection(db, "users"));
-    setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-  };
-
-  // Get attendance status (check-in and check-out data) from Firestore
-  const getAttendanceStatus = async () => {
-    const checkinRef = collection(db, "checkin");
-    const checkoutRef = collection(db, "checkout");
-
-    const checkinQuery = query(
-      checkinRef,
-      where("date", "==", formattedDate),
-      where("userId", "==", userId)
-    );
-
-    const checkoutQuery = query(
-      checkoutRef,
-      where("date", "==", formattedDate),
-      where("userId", "==", userId)
-    );
-
-    const [checkinSnapshot, checkoutSnapshot] = await Promise.all([
-      getDocs(checkinQuery),
-      getDocs(checkoutQuery),
-    ]);
-
-    const checkinData = checkinSnapshot.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-      type: "checkin",
-    }));
-
-    const checkoutData = checkoutSnapshot.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-      type: "checkout",
-    }));
-
-    const attendanceData = [...checkinData, ...checkoutData];
-    setAttendanceValue(attendanceData);
-    setCheckInValue(checkinData);
-    setCheckOutValue(checkoutData);
-  };
+  // const getUsers = async () => {
+  //   const data = await getDocs(collection(db, "users"));
+  //   setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+  // };
 
   useEffect(() => {
     const fetchData = async () => {
-      await getUsers();
       await getAttendanceStatus();
     };
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (attendanceValue.length > 0) {
+      setCheckInValue(attendanceValue[0].checkIn);
+      setCheckOutValue(attendanceValue[0].checkOut);
+      setWorkingTimeId(attendanceValue[0].id);
+    }
+  }, [attendanceValue]);
+
+  useEffect(() => {
+    if (isBreakTime) {
+      setBreakTimeValue(
+        calculateTimeDifference(checkInValue, checkOutValue, breakInput)
+      );
+    }
+  }, [isBreakTime]);
+
+  useEffect(() => {
+    if (checkInValue && checkOutValue && breakInput !== null) {
+      setBreakTimeValue(
+        calculateTimeDifference(checkInValue, checkOutValue, breakInput)
+      );
+    }
+  }, [breakInput, checkInValue, checkOutValue, breakTimeValue]);
+
+  useEffect(() => {
+    if (breakTimeValue !== "") {
+      handleCheckOut();
+    }
+  }, [breakTimeValue]);
+
+  // Get attendance status (check-in and check-out data) from Firestore
+  const getAttendanceStatus = async () => {
+    const attendacneRef = collection(db, "workingTime");
+
+    const getAttendaceById = query(
+      attendacneRef,
+      where("date", "==", formattedDate),
+      where("userId", "==", userId)
+    );
+
+    const attendaceSnapShot = await getDocs(getAttendaceById);
+
+    const attendanceValue = attendaceSnapShot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+
+    setAttendanceValue(attendanceValue);
+  };
+
   // Handle check-in
   const handleCheckIn = async () => {
-    await addDoc(collection(db, "checkin"), {
+    await addDoc(collection(db, "workingTime"), {
       date: formattedDate,
-      time: formattedTime,
       userId: userId,
-      type: "checkin",
+      checkIn: formattedTime,
+      checkOut: "",
+      totalTime: "",
+      extraTime: 0,
     });
     getAttendanceStatus();
   };
-
   // Handle check-out
   const handleCheckOut = async () => {
-    await addDoc(collection(db, "checkout"), {
-      date: formattedDate,
-      time: formattedTime,
-      userId: userId,
-      type: "checkout",
+    const wrokingTimeRef = doc(db, "workingTime", workingTimeId);
+    await updateDoc(wrokingTimeRef, {
+      checkOut: formattedTime,
+      totalTime: breakTimeValue,
+      extraTime: breakInput,
     });
     getAttendanceStatus();
   };
@@ -125,7 +140,6 @@ export default function Home() {
     ) {
       return "Invalid input";
     }
-
     // Split the time strings
     const startParts = startTime.split(":");
     const endParts = endTime.split(":");
@@ -150,7 +164,7 @@ export default function Home() {
 
     // Calculate time difference in milliseconds
     let timeDifference =
-      endDate.getTime() - startDate.getTime() + extraTime * 1000 * 60;
+      endDate.getTime() - startDate.getTime() - extraTime * 1000 * 60;
 
     // Convert time difference to hours, minutes, and seconds
     let hours = Math.floor(timeDifference / (1000 * 60 * 60));
@@ -169,6 +183,10 @@ export default function Home() {
     navigateToPage("/");
   };
 
+  const handleSubmitBreak = () => {
+    setIsBreakTime(false);
+  };
+
   return (
     <div className="home__container">
       <div className="home__content">
@@ -183,7 +201,7 @@ export default function Home() {
         <div className="home__date">
           Today is: <div className="home__date_current">{formattedDate}</div>
         </div>
-        {checkOutValue.length > 0 ? (
+        {checkOutValue !== "" ? (
           <div className="home__end_of_day">
             <div className="like__btn">
               <div className="like__icon">
@@ -194,23 +212,25 @@ export default function Home() {
             <div className="total">
               Total working time:
               <br />
-              {calculateTimeDifference(
-                checkInValue[0]?.time,
-                checkOutValue[0]?.time,
-                30
-              )}
+              {breakTimeValue}
             </div>
           </div>
         ) : (
           <div className="home__check_btn">
-            {checkInValue.length > 0 ? (
+            {checkInValue !== "" ? (
               <>
-                <div className="check__btn checkout" onClick={handleCheckOut}>
+                <div
+                  className="check__btn checkout"
+                  onClick={() => {
+                    setIsBreakTime(true);
+                    handleCheckOut();
+                  }}
+                >
                   <div className="btn__icon checkout">
                     <FaLongArrowAltUp />
                   </div>
                 </div>
-                <div className="btn__text">check-out</div>
+                <div className="btn__text">check-out now</div>
               </>
             ) : (
               <>
@@ -219,7 +239,7 @@ export default function Home() {
                     <FaLongArrowAltDown />
                   </div>
                 </div>
-                <div className="btn__text">check-in</div>
+                <div className="btn__text">check-in now</div>
               </>
             )}
           </div>
@@ -232,14 +252,8 @@ export default function Home() {
               </div>
               <div className="item__name">Check in</div>
             </div>
-            {checkInValue.length > 0 ? (
-              <>
-                {checkInValue.map((item, index) => (
-                  <div key={index} className="item__number">
-                    {item.time}
-                  </div>
-                ))}
-              </>
+            {checkInValue !== "" ? (
+              <div className="item__number">{checkInValue}</div>
             ) : (
               <>
                 <div className="item__number">Not available</div>
@@ -253,8 +267,8 @@ export default function Home() {
               </div>
               <div className="item__name">Check out</div>
             </div>
-            {checkOutValue.length > 0 ? (
-              <div className="item__number">{checkOutValue[0].time}</div>
+            {checkOutValue !== "" ? (
+              <div className="item__number">{checkOutValue}</div>
             ) : (
               <>
                 <div className="item__number">Not available</div>
@@ -263,6 +277,34 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {isBreakTime ? (
+        <div className="break__container">
+          <div className="break__content">
+            <div className="break__headline">Are you taking a break today?</div>
+            <div className="break__input">
+              <input
+                type="text"
+                value={breakInput}
+                onChange={(e) => setBreakInput(e.target.value)}
+              />
+              <div className="unit">mins</div>
+            </div>
+            <div className="break__btn_container">
+              <div
+                onClick={() => setIsBreakTime(false)}
+                className="break__btn close"
+              >
+                close
+              </div>
+              <div onClick={handleSubmitBreak} className="break__btn submit">
+                submit
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./components/Login";
 import Home from "./components/Home";
 import Admin from "./components/Admin";
+import Test from "./components/Test";
 
 export default function App() {
   // const currentUser = false;
@@ -28,6 +29,14 @@ export default function App() {
           element={
             // <RequireAuth>
             <Admin />
+            // </RequireAuth>
+          }
+        />
+        <Route
+          path="/testing"
+          element={
+            // <RequireAuth>
+            <Test />
             // </RequireAuth>
           }
         />

@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "../scss/Admin.scss";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaSignOutAlt, FaTimes } from "react-icons/fa";
+import {
+  FaLongArrowAltDown,
+  FaLongArrowAltUp,
+  FaRegClock,
+  FaRegUser,
+  FaSignOutAlt,
+  FaTimes,
+} from "react-icons/fa";
 import {
   addDoc,
   collection,
@@ -28,8 +35,11 @@ export default function Admin() {
   const [userPassword, setUserPassword] = useState("");
   const [userRole, setUserRole] = useState("");
 
-  //GET USERS LISTS
+  //GET USERS LIST
   const [users, setUsers] = useState([]);
+
+  //GET CHECKIN LIST
+  const [checkinValue, setCheckInValue] = useState([]);
 
   const { state } = useLocation();
   const userName = state?.userName;
@@ -43,9 +53,15 @@ export default function Admin() {
     const data = await getDocs(collection(db, "users"));
     setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
   };
+  //GET CHECKIN VALUE
+  const getCheckinValue = async () => {
+    const data = await getDocs(collection(db, "checkin"));
+    setCheckInValue(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+  };
 
   useEffect(() => {
     getUsers();
+    getCheckinValue();
   }, []);
 
   //CREATE NEW USER FOR AUTH AND FIRESTORE WITH THE SAME ID
@@ -108,19 +124,31 @@ export default function Admin() {
               onClick={() => setNav(0)}
               className={`nav__item ${nav === 0 ? "active" : "unactive"}`}
             >
-              Accounts
+              <FaRegUser />
             </div>
             <div
               onClick={() => setNav(1)}
               className={`nav__item ${nav === 1 ? "active" : "unactive"}`}
             >
-              Check-in
+              <div className="rotate">
+                <FaLongArrowAltDown />
+              </div>
             </div>
             <div
               onClick={() => setNav(2)}
               className={`nav__item ${nav === 2 ? "active" : "unactive"}`}
             >
-              Check-out
+              <div className="rotate">
+                <FaLongArrowAltUp />
+              </div>
+            </div>
+            <div
+              onClick={() => setNav(3)}
+              className={`nav__item ${nav === 3 ? "active" : "unactive"}`}
+            >
+              <div className="btn__icon checkout">
+                <FaRegClock />
+              </div>
             </div>
           </div>
         </div>
@@ -198,7 +226,13 @@ export default function Admin() {
                 </div>
               </div>
             ) : nav === 1 ? (
-              <div>check in history</div>
+              <div className="manage__item">
+                <div className="checkin">
+                  {checkinValue.map((item) => (
+                    <div key={item.id}>{/* <div>{item.}</div> */}</div>
+                  ))}
+                </div>
+              </div>
             ) : nav === 2 ? (
               <div>check out history</div>
             ) : (
