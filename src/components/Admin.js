@@ -261,9 +261,13 @@ export default function Admin() {
                 </div>
               </div>
             </div>
-            <div className="nav__item">
-              <FaPlus className="icon" onClick={handleCreate} />
-            </div>
+            {nav === 0 ? (
+              <div className="nav__item">
+                <FaPlus className="icon" onClick={handleCreate} />
+              </div>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
         <div className="admin__manage">
