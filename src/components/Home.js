@@ -28,6 +28,7 @@ export default function Home() {
   const [isBreakTime, setIsBreakTime] = useState(false);
   const [breakTimeValue, setBreakTimeValue] = useState("");
   const [breakInput, setBreakInput] = useState(0);
+  const [err, setErr] = useState("");
 
   const navigate = useNavigate();
   const navigateToPage = (pageUrl, stateData) => {
@@ -38,6 +39,7 @@ export default function Home() {
   const userName = state?.userName;
 
   const currentDate = new Date();
+  const currentHour = currentDate.getHours();
   const formattedDate = currentDate.toLocaleDateString();
   const options = { hour12: false }; // Use 24-hour format
   const formattedTime = currentDate.toLocaleTimeString(undefined, options);
@@ -63,21 +65,21 @@ export default function Home() {
     }
   }, [attendanceValue]);
 
-  useEffect(() => {
-    if (isBreakTime) {
-      setBreakTimeValue(
-        calculateTimeDifference(checkInValue, checkOutValue, breakInput)
-      );
-    }
-  }, [isBreakTime]);
+  // useEffect(() => {
+  //   if (isBreakTime) {
+  //     setBreakTimeValue(
+  //       calculateTimeDifference(checkInValue, checkOutValue, breakInput)
+  //     );
+  //   }
+  // }, [isBreakTime]);
 
-  useEffect(() => {
-    if (checkInValue && checkOutValue && breakInput !== null) {
-      setBreakTimeValue(
-        calculateTimeDifference(checkInValue, checkOutValue, breakInput)
-      );
-    }
-  }, [breakInput, checkInValue, checkOutValue, breakTimeValue]);
+  // useEffect(() => {
+  //   if (checkInValue && checkOutValue && breakInput !== null) {
+  //     setBreakTimeValue(
+  //       calculateTimeDifference(checkInValue, checkOutValue, breakInput)
+  //     );
+  //   }
+  // }, [breakInput, checkInValue, checkOutValue, breakTimeValue]);
 
   useEffect(() => {
     if (breakTimeValue !== "") {
@@ -110,6 +112,7 @@ export default function Home() {
     await addDoc(collection(db, "workingTime"), {
       date: formattedDate,
       userId: userId,
+      userName: userName,
       checkIn: formattedTime,
       checkOut: "",
       totalTime: "",
@@ -119,10 +122,20 @@ export default function Home() {
   };
   // Handle check-out
   const handleCheckOut = async () => {
+    console.log(checkInValue);
+    console.log(formattedTime);
+    console.log(breakInput);
+    console.log(
+      calculateTimeDifference(checkInValue, formattedTime, breakInput)
+    );
     const wrokingTimeRef = doc(db, "workingTime", workingTimeId);
     await updateDoc(wrokingTimeRef, {
       checkOut: formattedTime,
-      totalTime: breakTimeValue,
+      totalTime: calculateTimeDifference(
+        checkInValue,
+        formattedTime,
+        breakInput
+      ),
       extraTime: breakInput,
     });
     getAttendanceStatus();
@@ -174,7 +187,7 @@ export default function Home() {
     let seconds = Math.floor(timeDifference / 1000);
 
     // Format output
-    return `${hours} hours ${minutes} minutes ${seconds} seconds`;
+    return `${hours}hrs ${minutes}mins ${seconds}s`;
   }
 
   //HANDLE LOG OUT
@@ -184,16 +197,38 @@ export default function Home() {
   };
 
   const handleSubmitBreak = () => {
-    setIsBreakTime(false);
+    let checkInDate = new Date(`1970-01-01T${checkInValue}Z`);
+    let checkOutDate = new Date(`1970-01-01T${formattedTime}Z`);
+    // Calculate the difference in milliseconds
+    let differenceInMillis = checkOutDate - checkInDate;
+    // Convert the difference into minutes
+    let differenceInMinutes = Math.floor(differenceInMillis / 60000);
+    console.log(differenceInMinutes);
+    if (breakInput < differenceInMinutes) {
+      setIsBreakTime(false);
+      handleCheckOut();
+    } else {
+      setErr(`Break time have to greater than ${differenceInMinutes} minutes`);
+    }
   };
 
   return (
     <div className="home__container">
       <div className="home__content">
         <div className="home__header">
-          <div className="header__thumbnail">
-            Good Morning! <div className="user__name">{userName}</div>
-          </div>
+          {currentHour > 13 ? (
+            <div className="header__thumbnail">
+              Good Afternoon! <div className="user__name">{userName}</div>
+            </div>
+          ) : currentHour > 18 ? (
+            <div className="header__thumbnail">
+              Good Night! <div className="user__name">{userName}</div>
+            </div>
+          ) : (
+            <div className="header__thumbnail">
+              Good Morning! <div className="user__name">{userName}</div>
+            </div>
+          )}
           <div className="header__back" onClick={handleLogOut}>
             <FaSignOutAlt className="header__back_icon" />
           </div>
@@ -212,7 +247,7 @@ export default function Home() {
             <div className="total">
               Total working time:
               <br />
-              {breakTimeValue}
+              {calculateTimeDifference(checkInValue, formattedTime, breakInput)}
             </div>
           </div>
         ) : (
@@ -223,7 +258,7 @@ export default function Home() {
                   className="check__btn checkout"
                   onClick={() => {
                     setIsBreakTime(true);
-                    handleCheckOut();
+                    // handleCheckOut();
                   }}
                 >
                   <div className="btn__icon checkout">
@@ -289,6 +324,7 @@ export default function Home() {
               />
               <div className="unit">mins</div>
             </div>
+            <div>{err}</div>
             <div className="break__btn_container">
               <div
                 onClick={() => setIsBreakTime(false)}

@@ -22,19 +22,6 @@ export default function Login() {
     navigate(pageUrl, { state: stateData });
   };
 
-  // const handleLogin = (e) => {
-  //   e.preventDefault();
-
-  //   signInWithEmailAndPassword(auth, email, password)
-  //     .then((userCredential) => {
-  //       // Signed in
-  //       const user = userCredential.user;
-  //       setAccountInfo(user);
-  //     })
-  //     .catch((error) => {
-  //       setError(true);
-  //     });
-  // };
   const handleLogin = async (e) => {
     e.preventDefault();
     const userRef = collection(db, "users");
@@ -57,38 +44,6 @@ export default function Login() {
           });
     });
   };
-
-  // useEffect(() => {
-  //   if (accountInfo) {
-  //     const fetchData = async () => {
-  //       try {
-  //         const userRef = collection(db, "users");
-  //         const roleQuery = query(
-  //           userRef,
-  //           where("username", "==", email),
-  //           where("password", "==", password)
-  //         );
-  //         const querySnapshot = await getDocs(roleQuery);
-  //         // Handle querySnapshot data here
-  //         querySnapshot.forEach((doc) => {
-  //           doc.data().role === "admin"
-  //             ? navigateToPage("/admin-manage", {
-  //                 userId: accountInfo.uid,
-  //                 userName: email,
-  //               })
-  //             : navigateToPage("/home", {
-  //                 userId: accountInfo.uid,
-  //                 userName: email,
-  //               });
-  //         });
-  //       } catch (error) {
-  //         console.error("Error fetching data:", error);
-  //       }
-  //     };
-
-  //     fetchData();
-  //   }
-  // }, [accountInfo]);
 
   return (
     <div className="login__container">
