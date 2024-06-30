@@ -5,6 +5,10 @@ $danger:#DD5746;
 $softWhite: #F5EFE6;
 $boxShadow:-5px 10px 10px rgb(195, 195, 195);
 
+$breakpoint-small: 600px;
+$breakpoint-medium: 990px;
+$breakpoint-large: 1200px;
+
 
 
 html{
@@ -23,6 +27,9 @@ body{
     .admin__content{
         width: 100%;
         padding:25rem 0 10rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         .admin__header{
             width: 100%;
             position: fixed;
@@ -110,6 +117,9 @@ body{
                         justify-content: space-between;
                         gap: 3rem;
                         .user{
+                            @media (max-width: $breakpoint-medium) {
+                                width: 100%;
+                              }
                             width: 40%;
                             display: flex;
                             align-items: center;
@@ -162,6 +172,9 @@ body{
                         justify-content: space-between;
                         gap: 1rem;
                         .work{
+                            @media (max-width: $breakpoint-medium) {
+                                width: 100%;
+                              }
                             width: 25%;
                             background: $light;
                             padding: 2rem 3rem;
@@ -246,7 +259,7 @@ body{
             position: relative;
             background: $light;
             padding: 3rem 6rem;
-            width: 20%;
+            // width: 20%;
             display: flex;
             flex-direction: column;
             gap: 3rem;
