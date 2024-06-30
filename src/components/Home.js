@@ -122,12 +122,6 @@ export default function Home() {
   };
   // Handle check-out
   const handleCheckOut = async () => {
-    console.log(checkInValue);
-    console.log(formattedTime);
-    console.log(breakInput);
-    console.log(
-      calculateTimeDifference(checkInValue, formattedTime, breakInput)
-    );
     const wrokingTimeRef = doc(db, "workingTime", workingTimeId);
     await updateDoc(wrokingTimeRef, {
       checkOut: formattedTime,

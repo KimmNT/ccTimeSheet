@@ -28,6 +28,7 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
   signOut,
+  getAuth,
 } from "firebase/auth";
 
 export default function Admin() {
@@ -54,6 +55,8 @@ export default function Admin() {
   const [extra, setExtra] = useState(0);
   const [total, setTotal] = useState("");
   const [workingTimeId, setWorkingTimeId] = useState("");
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { state } = useLocation();
   const userName = state?.userName;
@@ -234,6 +237,20 @@ export default function Admin() {
     return `${hours}hrs ${minutes}mins ${seconds}s`;
   }
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+  const filterWork = workingTime.filter((work) =>
+    Object.values(work).some((value) =>
+      String(value).toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+  const filterUser = users.filter((user) =>
+    Object.values(user).some((value) =>
+      String(value).toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  );
+
   return (
     <div className="admin__container">
       <div className="admin__content">
@@ -269,16 +286,26 @@ export default function Admin() {
               <></>
             )}
           </div>
+          <div className="search">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+            <FaTimes className="clear" onClick={() => setSearchQuery("")} />
+          </div>
         </div>
         <div className="admin__manage">
           <div className="manage__content">
             {nav === 0 ? (
               <div className="manage__item ">
                 <div className="item__users">
-                  {users.map((user, index) => (
+                  {filterUser.map((user, index) => (
                     <div key={index} className="user">
                       <div className="user__info">
                         <div className="user__name">{user.username}</div>
+                        <div className="user__name">{user.password}</div>
                         <div className="user__role">
                           <div className="text">{user.role}</div>
                         </div>
@@ -296,7 +323,7 @@ export default function Admin() {
             ) : (
               <div className="manage__item ">
                 <div className="item__work">
-                  {workingTime.map((work, index) => (
+                  {filterWork.map((work, index) => (
                     <div key={index} className="work">
                       <div className="work__user">{work.userName}</div>
                       <div className="work__info">

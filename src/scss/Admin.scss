@@ -26,7 +26,7 @@ body{
     position: relative;
     .admin__content{
         width: 100%;
-        padding:25rem 0 10rem 0;
+        padding:30rem 0 10rem 0;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -43,6 +43,10 @@ body{
                 justify-content: space-between;
                 max-width: 950px !important;
                 margin: 0 auto;
+                @media (max-width: $breakpoint-medium) {
+                    max-width: 350px !important;
+                    margin: 0 auto;
+                  }
                 .header__thumbnail{
                     font-size: 3rem;
                     font-weight: 600;
@@ -69,6 +73,10 @@ body{
                 max-width: 950px !important;
                 margin: 0 auto;
                 padding-top: 3rem;
+                @media (max-width: $breakpoint-medium) {
+                    max-width: 350px !important;
+                    margin: 0 auto;
+                  }
                 .nav__item{
                     display: flex;
                     gap: 3rem;
@@ -99,11 +107,40 @@ body{
                     }
                 }
             }
+            .search{
+                max-width: 950px !important;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                gap: 1rem;
+                // background: $light;
+                border-bottom: .2rem solid $dark;
+                padding: 5rem 0 .5rem 0;
+                @media (max-width: $breakpoint-medium) {
+                    max-width: 350px !important;
+                    margin: 0 auto;
+                  }
+                input{
+                    outline: none;
+                    border: none;
+                    width: 80%;
+                    background: none;
+                    font-weight: 600;
+                }
+                .clear{
+                    font-size: 2rem;
+                }
+            }
         }
         .admin__manage{
             width: 100%;
             max-width: 950px !important;
             margin: 0 auto;
+            @media (max-width: $breakpoint-medium) {
+                max-width: 350px !important;
+                margin: 0 auto;
+              }
             .manage__content{
                 width: 100%;
                 .manage__item{
@@ -132,7 +169,6 @@ body{
                                 display: flex;
                                 flex-direction: column;
                                 gap: 2rem;
-                                width: 50%;
                                 .user__name{
                                     font-size: 2rem;
                                     font-weight: 600;
@@ -170,7 +206,7 @@ body{
                         align-items: center;
                         flex-wrap: wrap;
                         justify-content: space-between;
-                        gap: 1rem;
+                        gap: 4rem;
                         .work{
                             @media (max-width: $breakpoint-medium) {
                                 width: 100%;
