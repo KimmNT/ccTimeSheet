@@ -36,7 +36,7 @@ body{
                 font-size: 2rem;
                 color: #666666;
                 .user__name{
-                    font-size: 1.5rem;
+                    font-size: 2rem;
                     font-weight: 600;
                     color: $dark;
                 }
@@ -218,6 +218,11 @@ body{
                     font-size: 2rem;
                     color: #8e8b86;
                 }
+            }
+            .break__value{
+                font-size: 2rem;
+                width: 60%;
+                text-align: center;
             }
             .break__btn_container{
                 display: flex;

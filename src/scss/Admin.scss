@@ -188,16 +188,29 @@ body{
                                     }
                                 }
                             }
-                            .user__delete_btn{
-                                width: 3rem;
-                                height: 3rem;
-                                background: $danger;
+                            .user__btns{
                                 display: flex;
                                 justify-content: center;
                                 align-items: center;
-                                font-size: 2rem;
-                                color: $light;
-                                border-radius: .5rem;
+                                flex-direction: column;
+                                gap: 3rem;
+                                .user__btn{
+                                    width: 3rem;
+                                    height: 3rem;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    font-size: 1.5rem;
+                                    border-radius: .5rem;
+                                    &.delete{
+                                        color: $light;
+                                        background: $danger;
+                                    }
+                                    &.edit{
+                                        color: $light;
+                                        background: $primary;
+                                    }
+                                }
                             }
                         }
                     }
@@ -205,8 +218,11 @@ body{
                         display: flex;
                         align-items: center;
                         flex-wrap: wrap;
-                        justify-content: space-between;
-                        gap: 4rem;
+                        // justify-content: space-between;
+                        gap: 2rem;
+                        @media (max-width: $breakpoint-medium) {
+                            gap: 5rem;
+                          }
                         .work{
                             @media (max-width: $breakpoint-medium) {
                                 width: 100%;
@@ -331,6 +347,49 @@ body{
                             .option__lable{
                                 font-size: 1.5rem;
                                 font-weight: 600;
+                            }
+                        }
+                    }
+                }
+            }
+            .item__group{
+                display: flex;
+                align-items: center;
+                // gap: 3rem;
+                justify-content: space-between;
+                .item__input{
+                    width: 40%;
+                    display: flex;
+                    flex-direction: column;
+                    .item__input_lable{
+                        font-size: 2rem;
+                        font-weight: 600;
+                    }
+                    input{
+                        width: 100%;
+                        border: none;
+                        outline: none;
+                        border-bottom: .2rem solid $dark;
+                        font-size: 1.5rem;
+                        padding: 1rem 1.5rem;
+                        font-weight: 600;
+                    }
+                    &.role{
+                        width: 100%;
+                        .role__option{
+                            display: flex;
+                            align-items: center;
+                            gap: 5rem;
+                            margin-top: 2rem;
+                            width: 100%;
+                            justify-content: space-between;
+                            .role__option_item{
+                                display: flex;
+                                align-items: center;
+                                .option__lable{
+                                    font-size: 1.5rem;
+                                    font-weight: 600;
+                                }
                             }
                         }
                     }

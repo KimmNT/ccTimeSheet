@@ -21,15 +21,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { auth, db } from "../firebase";
-import {
-  createUserWithEmailAndPassword,
-  deleteUser,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-  signOut,
-  getAuth,
-} from "firebase/auth";
+import { db } from "../firebase";
 
 export default function Admin() {
   //SYSTEM
@@ -43,9 +35,14 @@ export default function Admin() {
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [userRole, setUserRole] = useState("");
+  const [userName, setUserName] = useState("");
+  const [userContact, setUserContact] = useState("");
+  const [userBank, setUserBank] = useState("");
+  const [userSalary, setUserSalary] = useState(0);
 
   //GET USERS LIST
   const [users, setUsers] = useState([]);
+  const [emails, setEmails] = useState([]);
 
   //GET WORKING TIME
   const [workingTime, setWorkingTime] = useState([]);
@@ -59,7 +56,6 @@ export default function Admin() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { state } = useLocation();
-  const userName = state?.userName;
 
   const navigate = useNavigate();
   const navigateToPage = (pageUrl, stateData) => {
@@ -70,10 +66,39 @@ export default function Admin() {
     getUsers();
     getWorkingTime();
   }, []);
+
+  //AUTO GENERATE STRING AS ID
+  const generateRandomString = (length) => {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    let result = "";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
   //GET USERS
   const getUsers = async () => {
-    const data = await getDocs(collection(db, "users"));
-    setUsers(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    try {
+      const data = await getDocs(collection(db, "users"));
+      const usersData = data.docs.map((doc) => {
+        const userData = doc.data();
+        return {
+          id: doc.id,
+          ...userData,
+          // Adjust this line according to your document structure
+          userEmail: userData.userEmail, // Assuming userEmail is a top-level field
+        };
+      });
+
+      setUsers(usersData);
+      setEmails(
+        usersData.map((user) => ({ id: user.id, userEmail: user.userEmail }))
+      );
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      // Handle error as needed
+    }
   };
   //GET CHECKIN VALUE
   const getWorkingTime = async () => {
@@ -83,35 +108,42 @@ export default function Admin() {
   //CREATE NEW USER FOR AUTH AND FIRESTORE WITH THE SAME ID
   const handleAddUser = async (e) => {
     e.preventDefault();
-    try {
-      const res = await createUserWithEmailAndPassword(
-        auth,
-        userEmail,
-        userPassword
-      );
-      await setDoc(doc(db, "users", res.user.uid), {
-        id: res.user.uid,
-        username: userEmail,
-        password: userPassword,
-        role: userRole,
-      });
-      getUsers();
-      setUserEmail("");
-      setUserPassword("");
-      setIsUserCreated(false);
-      setError("");
-    } catch (err) {
-      // Handle specific error messages
-      if (err.code === "auth/weak-password") {
-        setError("Password should be at least 6 characters");
-      } else if (err.code === "auth/email-already-in-use") {
-        setError("Email already in use");
-      } else {
+    if (emails.some((email) => email.userEmail === userEmail)) {
+      setError("Email already in use");
+    } else {
+      try {
+        // Generate a unique user ID using Firestore's auto-generated ID
+        const userId = generateRandomString(20);
+
+        // Store user data in Firestore
+        await setDoc(doc(db, "users", userId), {
+          id: userId,
+          userEmail: userEmail,
+          userPassword: userPassword,
+          userName: userName,
+          userContact: userContact,
+          userBank: userBank,
+          userSalary: userSalary,
+          role: userRole,
+        });
+
+        // Clear form fields and state after successful creation
+        getUsers(); // Assuming getUsers fetches updated user list
+        setUserEmail("");
+        setUserPassword("");
+        setUserName("");
+        setUserContact("");
+        setUserBank("");
+        setUserSalary("");
+        setIsUserCreated(false); // Assuming you want to indicate successful creation
+        setError(""); // Clear any previous errors
+      } catch (err) {
+        // Handle any errors
         setError("An error occurred. Please try again.");
+        console.error("Error adding user: ", err);
       }
     }
   };
-
   //UPDATE WORKINGTIME
   const handleEdit = (work) => {
     // console.log(work.id);
@@ -137,17 +169,6 @@ export default function Admin() {
   //ALSO DELETE USER AT AUTHENTICATION AND COLLECTION
   const handleDelete = async (account) => {
     try {
-      // Re-authenticate the user
-      const user = auth.currentUser;
-      const credential = EmailAuthProvider.credential(
-        account.username,
-        account.password
-      );
-      await reauthenticateWithCredential(user, credential);
-
-      // Delete user from Firebase Authentication
-      await deleteUser(user);
-
       // Delete user document from Firestore
       await deleteDoc(doc(db, "users", account.id));
 
@@ -170,7 +191,6 @@ export default function Admin() {
 
   //HANDLE LOG OUT
   const handleLogOut = () => {
-    signOut(auth);
     navigateToPage("/");
   };
 
@@ -187,6 +207,10 @@ export default function Admin() {
     setError("");
     setUserEmail("");
     setUserPassword("");
+    setUserName("");
+    setUserContact("");
+    setUserBank("");
+    setUserSalary("");
     setIsWorkingTime(false);
   };
 
@@ -304,17 +328,29 @@ export default function Admin() {
                   {filterUser.map((user, index) => (
                     <div key={index} className="user">
                       <div className="user__info">
-                        <div className="user__name">{user.username}</div>
-                        <div className="user__name">{user.password}</div>
+                        <div className="user__name">
+                          Email: {user.userEmail}
+                        </div>
+                        <div className="user__name">
+                          Password: {user.userPassword}
+                        </div>
                         <div className="user__role">
                           <div className="text">{user.role}</div>
                         </div>
                       </div>
-                      <div
-                        className="user__delete_btn"
-                        onClick={() => handleDelete(user)}
-                      >
-                        <FaTimes className="delete__btn_icon" />
+                      <div className="user__btns">
+                        <div
+                          className="user__btn edit"
+                          onClick={() => handleDelete(user)}
+                        >
+                          <FaPen className="delete__btn_icon" />
+                        </div>
+                        <div
+                          className="user__btn delete"
+                          onClick={() => handleDelete(user)}
+                        >
+                          <FaTimes className="delete__btn_icon" />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -392,6 +428,42 @@ export default function Admin() {
                 value={userPassword}
                 onChange={(e) => setUserPassword(e.target.value)}
               />
+            </div>
+            <div className="item__group">
+              <div className="item__input">
+                <div className="item__input_lable">Name</div>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                />
+              </div>
+              <div className="item__input">
+                <div className="item__input_lable">Contact</div>
+                <input
+                  type="text"
+                  value={userContact}
+                  onChange={(e) => setUserContact(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="item__group">
+              <div className="item__input">
+                <div className="item__input_lable">Bank account</div>
+                <input
+                  type="text"
+                  value={userBank}
+                  onChange={(e) => setUserBank(e.target.value)}
+                />
+              </div>
+              <div className="item__input">
+                <div className="item__input_lable">Salary (¥/h)</div>
+                <input
+                  type="text"
+                  value={userSalary}
+                  onChange={(e) => setUserSalary(e.target.value)}
+                />
+              </div>
             </div>
             <div className="item__input role">
               <div className="item__input_lable">Role</div>

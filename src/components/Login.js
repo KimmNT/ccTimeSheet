@@ -27,8 +27,8 @@ export default function Login() {
     const userRef = collection(db, "users");
     const roleQuery = query(
       userRef,
-      where("username", "==", email),
-      where("password", "==", password)
+      where("userEmail", "==", email),
+      where("userPassword", "==", password)
     );
     const querySnapshot = await getDocs(roleQuery);
     // Handle querySnapshot data here
@@ -36,11 +36,11 @@ export default function Login() {
       doc.data().role === "admin"
         ? navigateToPage("/admin-manage", {
             userId: doc.data().id,
-            userName: email,
+            userName: doc.data().userName,
           })
         : navigateToPage("/home", {
             userId: doc.data().id,
-            userName: email,
+            userName: doc.data().userName,
           });
     });
   };

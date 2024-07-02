@@ -26,7 +26,7 @@ export default function Home() {
   const [checkOutValue, setCheckOutValue] = useState("");
   const [workingTimeId, setWorkingTimeId] = useState("");
   const [isBreakTime, setIsBreakTime] = useState(false);
-  const [breakTimeValue, setBreakTimeValue] = useState("");
+  const [totalTime, setTotalTime] = useState("");
   const [breakInput, setBreakInput] = useState(0);
   const [err, setErr] = useState("");
 
@@ -37,6 +37,9 @@ export default function Home() {
   const { state } = useLocation();
   const userId = state?.userId;
   const userName = state?.userName;
+
+  console.log(userId);
+  console.log(userName);
 
   const currentDate = new Date();
   const currentHour = currentDate.getHours();
@@ -62,6 +65,7 @@ export default function Home() {
       setCheckInValue(attendanceValue[0].checkIn);
       setCheckOutValue(attendanceValue[0].checkOut);
       setWorkingTimeId(attendanceValue[0].id);
+      setTotalTime(attendanceValue[0].totalTime);
     }
   }, [attendanceValue]);
 
@@ -81,11 +85,11 @@ export default function Home() {
   //   }
   // }, [breakInput, checkInValue, checkOutValue, breakTimeValue]);
 
-  useEffect(() => {
-    if (breakTimeValue !== "") {
-      handleCheckOut();
-    }
-  }, [breakTimeValue]);
+  // useEffect(() => {
+  //   if (breakTimeValue !== "") {
+  //     handleCheckOut();
+  //   }
+  // }, [breakTimeValue]);
 
   // Get attendance status (check-in and check-out data) from Firestore
   const getAttendanceStatus = async () => {
@@ -197,7 +201,6 @@ export default function Home() {
     let differenceInMillis = checkOutDate - checkInDate;
     // Convert the difference into minutes
     let differenceInMinutes = Math.floor(differenceInMillis / 60000);
-    console.log(differenceInMinutes);
     if (breakInput < differenceInMinutes) {
       setIsBreakTime(false);
       handleCheckOut();
@@ -210,11 +213,11 @@ export default function Home() {
     <div className="home__container">
       <div className="home__content">
         <div className="home__header">
-          {currentHour > 13 ? (
+          {currentHour > 13 && currentHour < 18 ? (
             <div className="header__thumbnail">
               Good Afternoon! <div className="user__name">{userName}</div>
             </div>
-          ) : currentHour > 18 ? (
+          ) : currentHour > 18 && currentHour < 23 ? (
             <div className="header__thumbnail">
               Good Night! <div className="user__name">{userName}</div>
             </div>
@@ -241,7 +244,7 @@ export default function Home() {
             <div className="total">
               Total working time:
               <br />
-              {calculateTimeDifference(checkInValue, formattedTime, breakInput)}
+              {totalTime}
             </div>
           </div>
         ) : (
@@ -318,10 +321,13 @@ export default function Home() {
               />
               <div className="unit">mins</div>
             </div>
-            <div>{err}</div>
+            <div className="break__value">{err}</div>
             <div className="break__btn_container">
               <div
-                onClick={() => setIsBreakTime(false)}
+                onClick={() => {
+                  setIsBreakTime(false);
+                  setErr("");
+                }}
                 className="break__btn close"
               >
                 close
