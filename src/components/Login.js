@@ -8,12 +8,14 @@ import {
 import "../scss/Login.scss";
 import Logo from "./Logo";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [accountInfo, setAccountInfo] = useState("");
+  const [passwordDisplay, setPasswordDisplay] = useState(false);
 
   const navigate = useNavigate();
   // const { state } = useLocation();
@@ -64,12 +66,29 @@ export default function Login() {
           </div>
           <div className="form__item">
             <div className="form__item_headline">Password</div>
-            <input
-              placeholder="name"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="form__item_password">
+              <input
+                placeholder="name"
+                type={passwordDisplay ? `text` : `password`}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {passwordDisplay ? (
+                <div
+                  className="password__control"
+                  onClick={() => setPasswordDisplay(false)}
+                >
+                  <FaEye />
+                </div>
+              ) : (
+                <div
+                  className="password__control"
+                  onClick={() => setPasswordDisplay(true)}
+                >
+                  <FaEyeSlash />
+                </div>
+              )}
+            </div>
           </div>
           {error && (
             <div className="form__error">

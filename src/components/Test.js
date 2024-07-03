@@ -1,60 +1,61 @@
-import React, { useEffect } from "react";
-import "../scss/Admin.scss";
-import { useLocation, useNavigate } from "react-router-dom";
-import {
-  FaLongArrowAltDown,
-  FaLongArrowAltUp,
-  FaRegClock,
-  FaRegUser,
-  FaSignOutAlt,
-  FaTimes,
-} from "react-icons/fa";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-} from "firebase/firestore";
-import { auth, db } from "../firebase";
-import {
-  createUserWithEmailAndPassword,
-  deleteUser,
-  signOut,
-} from "firebase/auth";
+import React, { useState } from "react";
 
-export default function Test() {
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString();
+const Test = () => {
+  const [items] = useState([
+    {
+      name: "Item 1",
+      createdDate: "2023-07-01",
+    },
+    {
+      name: "Item 2",
+      createdDate: "2023-07-02",
+    },
+    {
+      name: "Item 3",
+      createdDate: "2023-07-03",
+    },
+  ]);
 
-  //   useEffect(() => {
-  //       //Handle submit workingTime
-  //       const handleSubmitWorkingTime = async () => {
-  //         console.log(breakTimeValue);
-  //         await addDoc(collection(db, "workingTime"), {
-  //           workingTime: breakTimeValue,
-  //           extraTime: breakInput,
-  //           userId: userId,
-  //           date: formattedDate,
-  //         });
-  //       };
-  //       if (breakTimeValue !== "") {
-  //         handleSubmitWorkingTime();
-  //       }
-  //     }, [breakTimeValue]);
-  const wrokingTimeRef = doc(db, "workingTime", "2aqCjaWU8WXLvt3IoKxh");
-  const handleSubmitWorkingTime = async () => {
-    await updateDoc(wrokingTimeRef, {
-      extraTime: 20,
+  const findItems = (searchTerm, searchType) => {
+    return items.filter((item) => {
+      if (searchType === "name") {
+        return item.name.includes(searchTerm);
+      } else if (searchType === "createdDate") {
+        return item.createdDate.includes(searchTerm);
+      }
+      return false;
     });
   };
+
   return (
     <div>
-      <div onClick={handleSubmitWorkingTime}>UPDATE</div>
+      <h1>Items</h1>
+      <ul>
+        {items.map((item, index) => (
+          <li key={index}>
+            {item.name} - {item.createdDate}
+          </li>
+        ))}
+      </ul>
+      <h2>Search Results</h2>
+      <h3>Find by Name Contains ("Item"):</h3>
+      <ul>
+        {findItems("Item", "name").map((item, index) => (
+          <li key={index}>
+            {item.name} - {item.createdDate}
+          </li>
+        ))}
+      </ul>
+      <h3>Find by Created Date Contains ("2023-07"):</h3>
+      <ul>
+        {findItems("2023-07", "createdDate").map((item, index) => (
+          <li key={index}>
+            {item.name} - {item.createdDate}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-}
+};
+
+export default Test;

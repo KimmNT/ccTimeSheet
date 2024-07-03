@@ -38,9 +38,6 @@ export default function Home() {
   const userId = state?.userId;
   const userName = state?.userName;
 
-  console.log(userId);
-  console.log(userName);
-
   const currentDate = new Date();
   const currentHour = currentDate.getHours();
   const formattedDate = currentDate.toLocaleDateString();

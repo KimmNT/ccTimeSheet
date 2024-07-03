@@ -16,30 +16,9 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route
-          path="/home"
-          element={
-            // <RequireAuth>
-            <Home />
-            // </RequireAuth>
-          }
-        />
-        <Route
-          path="/admin-manage"
-          element={
-            // <RequireAuth>
-            <Admin />
-            // </RequireAuth>
-          }
-        />
-        <Route
-          path="/testing"
-          element={
-            // <RequireAuth>
-            <Test />
-            // </RequireAuth>
-          }
-        />
+        <Route path="/home" element={<Home />} />
+        <Route path="/admin-manage" element={<Admin />} />
+        <Route path="/testing" element={<Test />} />
       </Routes>
     </BrowserRouter>
   );

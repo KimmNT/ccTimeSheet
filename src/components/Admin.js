@@ -22,11 +22,16 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../firebase";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function Admin() {
   //SYSTEM
   const [isUserCreated, setIsUserCreated] = useState(false);
   const [error, setError] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [startDate, setStartDate] = useState(new Date());
+  const [searchQuery, setSearchQuery] = useState("");
 
   //NAVIGATION
   const [nav, setNav] = useState(0);
@@ -39,6 +44,8 @@ export default function Admin() {
   const [userContact, setUserContact] = useState("");
   const [userBank, setUserBank] = useState("");
   const [userSalary, setUserSalary] = useState(0);
+  const [editUser, setEditUser] = useState(false);
+  const [userId, setUserId] = useState("");
 
   //GET USERS LIST
   const [users, setUsers] = useState([]);
@@ -53,8 +60,6 @@ export default function Admin() {
   const [total, setTotal] = useState("");
   const [workingTimeId, setWorkingTimeId] = useState("");
 
-  const [searchQuery, setSearchQuery] = useState("");
-
   const { state } = useLocation();
 
   const navigate = useNavigate();
@@ -64,8 +69,8 @@ export default function Admin() {
 
   useEffect(() => {
     getUsers();
-    getWorkingTime();
-  }, []);
+    getWorkingTimeByDate(formatDate(startDate));
+  }, [startDate]);
 
   //AUTO GENERATE STRING AS ID
   const generateRandomString = (length) => {
@@ -101,9 +106,22 @@ export default function Admin() {
     }
   };
   //GET CHECKIN VALUE
-  const getWorkingTime = async () => {
-    const data = await getDocs(collection(db, "workingTime"));
-    setWorkingTime(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+  const getWorkingTimeByDate = async (date) => {
+    const workingTimeRef = collection(db, "workingTime");
+
+    const getWorkingTimeByDate = query(
+      workingTimeRef,
+      where("date", "==", date)
+    );
+
+    const workingTimeSnapShot = await getDocs(getWorkingTimeByDate);
+
+    const workingTimeValue = workingTimeSnapShot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+
+    setWorkingTime(workingTimeValue);
   };
   //CREATE NEW USER FOR AUTH AND FIRESTORE WITH THE SAME ID
   const handleAddUser = async (e) => {
@@ -144,6 +162,35 @@ export default function Admin() {
       }
     }
   };
+
+  //UPDATE USER
+  const handleEditUser = (account) => {
+    setUserId(account.id);
+    setUserEmail(account.userEmail);
+    setUserPassword(account.userPassword);
+    setUserName(account.userName);
+    setUserContact(account.userContact);
+    setUserBank(account.userBank);
+    setUserSalary(account.userSalary);
+    setUserRole(account.role);
+    setIsUserCreated(true);
+    setEditUser(true);
+  };
+  const handleUpdateUserInfo = async () => {
+    const userRef = doc(db, "users", userId);
+    await updateDoc(userRef, {
+      userEmail: userEmail,
+      userPassword: userPassword,
+      userName: userName,
+      userContact: userContact,
+      userBank: userBank,
+      userSalary: userSalary,
+      role: userRole,
+    });
+    setIsUserCreated(false);
+    getUsers();
+  };
+
   //UPDATE WORKINGTIME
   const handleEdit = (work) => {
     // console.log(work.id);
@@ -163,7 +210,7 @@ export default function Admin() {
       extraTime: extra,
     });
     setIsWorkingTime(false);
-    getWorkingTime();
+    getWorkingTimeByDate(formatDate(startDate));
   };
 
   //ALSO DELETE USER AT AUTHENTICATION AND COLLECTION
@@ -183,7 +230,7 @@ export default function Admin() {
     try {
       // Delete user document from Firestore
       await deleteDoc(doc(db, "workingTime", workID));
-      getWorkingTime();
+      getWorkingTimeByDate(formatDate(startDate));
     } catch (error) {
       console.error("Error deleting user:", error);
     }
@@ -260,7 +307,12 @@ export default function Admin() {
     // Format output
     return `${hours}hrs ${minutes}mins ${seconds}s`;
   }
-
+  const formatDate = (date) => {
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // Months are zero-indexed
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
@@ -280,7 +332,9 @@ export default function Admin() {
       <div className="admin__content">
         <div className="admin__header">
           <div className="admin__header_info">
-            <div className="header__thumbnail">Welcome back!</div>
+            <div className="header__thumbnail">
+              Welcome back! {selectedDate}
+            </div>
             <div className="header__back" onClick={handleLogOut}>
               <FaSignOutAlt className="header__back_icon" />
             </div>
@@ -302,22 +356,32 @@ export default function Admin() {
                 </div>
               </div>
             </div>
+          </div>
+          <div className="control__container">
+            <div className="search">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              <FaTimes className="clear" onClick={() => setSearchQuery("")} />
+            </div>
             {nav === 0 ? (
               <div className="nav__item">
                 <FaPlus className="icon" onClick={handleCreate} />
               </div>
             ) : (
-              <></>
+              <div className="date__container">
+                Day:
+                <DatePicker
+                  className="date__picker"
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  dateFormat="M/d/yyyy"
+                />
+              </div>
             )}
-          </div>
-          <div className="search">
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
-            <FaTimes className="clear" onClick={() => setSearchQuery("")} />
           </div>
         </div>
         <div className="admin__manage">
@@ -341,7 +405,7 @@ export default function Admin() {
                       <div className="user__btns">
                         <div
                           className="user__btn edit"
-                          onClick={() => handleDelete(user)}
+                          onClick={() => handleEditUser(user)}
                         >
                           <FaPen className="delete__btn_icon" />
                         </div>
@@ -501,9 +565,15 @@ export default function Admin() {
               <div className="item__btn" onClick={handleClose}>
                 <div className="text close">cancel</div>
               </div>
-              <div className="item__btn" onClick={handleAddUser}>
-                <div className="text create">submit</div>
-              </div>
+              {editUser ? (
+                <div className="item__btn" onClick={handleUpdateUserInfo}>
+                  <div className="text create">edit</div>
+                </div>
+              ) : (
+                <div className="item__btn" onClick={handleAddUser}>
+                  <div className="text create">create</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -530,7 +600,7 @@ export default function Admin() {
               />
             </div>
             <div className="item__input">
-              <div className="item__input_lable">Extra</div>
+              <div className="item__input_lable">Extra (minutes)</div>
               <input
                 type="extra"
                 value={extra}

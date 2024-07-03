@@ -59,6 +59,22 @@ body{
                     background-color: transparent;
                     outline: none;
                 }
+                .form__item_password{
+                    display: flex;
+                    align-items: center;
+                    input{
+                        width: 97.5%;
+                        border: none;
+                        border-bottom: .2rem solid $dark;
+                        padding: 1rem .5rem;
+                        font-size: 2rem;
+                        background-color: transparent;
+                        outline: none;
+                    }
+                    .password__control{
+                        font-size: 2rem;
+                    }
+                }
             }
             .form__error{
                 font-size: 2rem;
