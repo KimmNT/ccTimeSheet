@@ -9,6 +9,7 @@ import {
   FaRegUser,
   FaSignOutAlt,
   FaTimes,
+  FaYenSign,
 } from "react-icons/fa";
 import {
   addDoc,
@@ -50,6 +51,7 @@ export default function Admin() {
   //GET USERS LIST
   const [users, setUsers] = useState([]);
   const [emails, setEmails] = useState([]);
+  const [salary, setSalary] = useState([]);
 
   //GET WORKING TIME
   const [workingTime, setWorkingTime] = useState([]);
@@ -59,6 +61,12 @@ export default function Admin() {
   const [extra, setExtra] = useState(0);
   const [total, setTotal] = useState("");
   const [workingTimeId, setWorkingTimeId] = useState("");
+
+  //PAYMENT
+  const [isPayment, setIsPayment] = useState(false);
+  const [transportFree, setTransportFree] = useState(false);
+  const [payment, setPayment] = useState(0);
+  const [payDate, setPayDate] = useState("");
 
   const { state } = useLocation();
 
@@ -71,7 +79,6 @@ export default function Admin() {
     getUsers();
     getWorkingTimeByDate(formatDate(startDate));
   }, [startDate]);
-
   //AUTO GENERATE STRING AS ID
   const generateRandomString = (length) => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -99,6 +106,9 @@ export default function Admin() {
       setUsers(usersData);
       setEmails(
         usersData.map((user) => ({ id: user.id, userEmail: user.userEmail }))
+      );
+      setSalary(
+        usersData.map((user) => ({ id: user.id, userSalary: user.userSalary }))
       );
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -162,7 +172,6 @@ export default function Admin() {
       }
     }
   };
-
   //UPDATE USER
   const handleEditUser = (account) => {
     setUserId(account.id);
@@ -190,15 +199,15 @@ export default function Admin() {
     setIsUserCreated(false);
     getUsers();
   };
-
   //UPDATE WORKINGTIME
   const handleEdit = (work) => {
-    // console.log(work.id);
+    console.log(work.id);
     setWorkingTimeId(work.id);
     setCheckIn(work.checkIn);
     setCheckOut(work.checkOut);
     setExtra(work.extraTime);
     setTotal(work.totalTime);
+    setUserName(work.userName);
     setIsWorkingTime(true);
   };
   const handleEditWorking = async () => {
@@ -212,7 +221,6 @@ export default function Admin() {
     setIsWorkingTime(false);
     getWorkingTimeByDate(formatDate(startDate));
   };
-
   //ALSO DELETE USER AT AUTHENTICATION AND COLLECTION
   const handleDelete = async (account) => {
     try {
@@ -235,19 +243,16 @@ export default function Admin() {
       console.error("Error deleting user:", error);
     }
   };
-
   //HANDLE LOG OUT
   const handleLogOut = () => {
     navigateToPage("/");
   };
-
   //HANDLE CREATE
   const handleCreate = () => {
     if (nav === 0) {
       setIsUserCreated(true);
     }
   };
-
   //HANDLE CLOSE
   const handleClose = () => {
     setIsUserCreated(false);
@@ -259,6 +264,25 @@ export default function Admin() {
     setUserBank("");
     setUserSalary("");
     setIsWorkingTime(false);
+  };
+  //HANDLE PAYMENT
+  const handlePayMent = (work) => {
+    const salaryById = salary.find((salary) => salary.id === work.userId);
+    setUserSalary(salaryById.userSalary);
+    setUserName(work.userName);
+    setTotal(convertToHours(work.totalTime));
+    setPayDate(work.date);
+    setCheckIn(work.checkIn);
+    setCheckOut(work.checkOut);
+    setIsPayment(true);
+    // console.log(work);
+  };
+  const handleCalculatePayment = () => {
+    if (transportFree) {
+      setPayment(userSalary * total - 1000);
+    } else {
+      setPayment(userSalary * total);
+    }
   };
 
   function calculateTimeDifference(startTime, endTime, extraTime = 0) {
@@ -307,6 +331,18 @@ export default function Admin() {
     // Format output
     return `${hours}hrs ${minutes}mins ${seconds}s`;
   }
+  const convertToHours = (timeStr) => {
+    const hoursMatch = timeStr.match(/(\d+)\s*hrs/);
+    const minsMatch = timeStr.match(/(\d+)\s*mins/);
+    const secsMatch = timeStr.match(/(\d+)\s*s/);
+
+    const hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
+    const minutes = minsMatch ? parseInt(minsMatch[1], 10) : 0;
+    const seconds = secsMatch ? parseInt(secsMatch[1], 10) : 0;
+
+    const totalHours = hours + minutes / 60 + seconds / 3600;
+    return totalHours.toFixed(2);
+  };
   const formatDate = (date) => {
     const day = date.getDate();
     const month = date.getMonth() + 1; // Months are zero-indexed
@@ -326,6 +362,10 @@ export default function Admin() {
       String(value).toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
+
+  const handleCheckboxChange = (e) => {
+    setTransportFree(e.target.checked);
+  };
 
   return (
     <div className="admin__container">
@@ -444,7 +484,7 @@ export default function Admin() {
                       </div>
                       <div className="work__info">
                         <div className="item">
-                          <div className="title">Extra</div>
+                          <div className="title">Break time</div>
                           <div className="number">{work.extraTime} minutes</div>
                         </div>
                         <div className="item">
@@ -453,17 +493,29 @@ export default function Admin() {
                         </div>
                       </div>
                       <div className="work__controller">
-                        <div
-                          className="control__item edit"
-                          onClick={() => handleEdit(work)}
-                        >
-                          <FaPen />
-                        </div>
-                        <div
-                          className="control__item delete"
-                          onClick={() => handleDeleteWorking(work.id)}
-                        >
-                          <FaTimes />
+                        {work.checkOut !== "" ? (
+                          <div
+                            className="pay"
+                            onClick={() => handlePayMent(work)}
+                          >
+                            <FaYenSign />
+                          </div>
+                        ) : (
+                          <div></div>
+                        )}
+                        <div className="control__item_container">
+                          <div
+                            className="control__item edit"
+                            onClick={() => handleEdit(work)}
+                          >
+                            <FaPen />
+                          </div>
+                          <div
+                            className="control__item delete"
+                            onClick={() => handleDeleteWorking(work.id)}
+                          >
+                            <FaTimes />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -600,7 +652,7 @@ export default function Admin() {
               />
             </div>
             <div className="item__input">
-              <div className="item__input_lable">Extra (minutes)</div>
+              <div className="item__input_lable">Break time (minutes)</div>
               <input
                 type="extra"
                 value={extra}
@@ -614,6 +666,61 @@ export default function Admin() {
               <div className="item__btn" onClick={handleEditWorking}>
                 <div className="text create">edit</div>
               </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+      {isPayment ? (
+        <div className="alert">
+          <div className="salary">
+            <div className="salary__item">
+              <div className="title">Date</div>
+              <div className="value">{payDate}</div>
+            </div>
+            <div className="salary__item">
+              <div className="title">Name</div>
+              <div className="value">{userName}</div>
+            </div>
+            <div className="salary__item">
+              <div className="title">Salary</div>
+              <div className="value">{userSalary}¥/h</div>
+            </div>
+            <div className="salary__item">
+              <div className="title">Total</div>
+              <div className="value">
+                <div className="value__total">{total} hours</div>
+                <div className="value__range">
+                  {checkIn} - {checkOut}
+                </div>
+              </div>
+            </div>
+            <div className="salary__item">
+              <div className="title">Transport</div>
+              <input
+                type="checkbox"
+                checked={transportFree}
+                onChange={handleCheckboxChange}
+              />
+            </div>
+            <div className="line"></div>
+            <div className="salary__result_container">
+              <div className="result__btns">
+                <div className="btn pay" onClick={handleCalculatePayment}>
+                  pay
+                </div>
+                <div
+                  className="btn cancel"
+                  onClick={() => {
+                    setIsPayment(false);
+                    setPayment(0);
+                  }}
+                >
+                  cancel
+                </div>
+              </div>
+              <div className="result__content">{payment}¥</div>
             </div>
           </div>
         </div>
