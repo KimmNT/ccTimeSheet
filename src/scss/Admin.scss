@@ -112,6 +112,12 @@ body{
                 align-items: flex-end;
                 width: 100%;
                 justify-content: space-evenly;
+                @media (max-width: $breakpoint-medium) {
+                    align-items: center;
+                    flex-direction: column;
+                    justify-content: center;
+                    gap: 2rem;
+                  }
                 .search{
                     width: 50%;
                     display: flex;
@@ -191,6 +197,7 @@ body{
             @media (max-width: $breakpoint-medium) {
                 max-width: 350px !important;
                 margin: 0 auto;
+                padding-top: 5rem;
               }
             .manage__content{
                 width: 100%;

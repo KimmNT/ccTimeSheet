@@ -40,7 +40,10 @@ export default function Home() {
 
   const currentDate = new Date();
   const currentHour = currentDate.getHours();
-  const formattedDate = currentDate.toLocaleDateString();
+  const day = currentDate.getDate();
+  const month = currentDate.getMonth() + 1; // Months are zero-indexed
+  const year = currentDate.getFullYear();
+  const formattedDate = `${month}/${day}/${year}`;
   const options = { hour12: false }; // Use 24-hour format
   const formattedTime = currentDate.toLocaleTimeString(undefined, options);
 
