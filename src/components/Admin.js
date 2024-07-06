@@ -89,6 +89,7 @@ export default function Admin() {
     }
     return result;
   };
+
   //GET USERS
   const getUsers = async () => {
     try {
@@ -279,7 +280,7 @@ export default function Admin() {
   };
   const handleCalculatePayment = () => {
     if (transportFree) {
-      setPayment(userSalary * total - 1000);
+      setPayment(userSalary * total + 1000);
     } else {
       setPayment(userSalary * total);
     }
@@ -462,65 +463,71 @@ export default function Admin() {
               </div>
             ) : (
               <div className="manage__item ">
-                <div className="item__work">
-                  {filterWork.map((work, index) => (
-                    <div key={index} className="work">
-                      <div className="work__user">{work.userName}</div>
-                      <div className="work__info">
-                        <div className="item">
-                          <div className="title">Date</div>
-                          <div className="number">{work.date}</div>
-                        </div>
-                      </div>
-                      <div className="work__info">
-                        <div className="item">
-                          <div className="title">Check In</div>
-                          <div className="number">{work.checkIn}</div>
-                        </div>
-                        <div className="item">
-                          <div className="title">Check Out</div>
-                          <div className="number">{work.checkOut}</div>
-                        </div>
-                      </div>
-                      <div className="work__info">
-                        <div className="item">
-                          <div className="title">Break time</div>
-                          <div className="number">{work.extraTime} minutes</div>
-                        </div>
-                        <div className="item">
-                          <div className="title">Total</div>
-                          <div className="number fixed">{work.totalTime}</div>
-                        </div>
-                      </div>
-                      <div className="work__controller">
-                        {work.checkOut !== "" ? (
-                          <div
-                            className="pay"
-                            onClick={() => handlePayMent(work)}
-                          >
-                            <FaYenSign />
-                          </div>
-                        ) : (
-                          <div></div>
-                        )}
-                        <div className="control__item_container">
-                          <div
-                            className="control__item edit"
-                            onClick={() => handleEdit(work)}
-                          >
-                            <FaPen />
-                          </div>
-                          <div
-                            className="control__item delete"
-                            onClick={() => handleDeleteWorking(work.id)}
-                          >
-                            <FaTimes />
+                {filterWork.length > 0 ? (
+                  <div className="item__work">
+                    {filterWork.map((work, index) => (
+                      <div key={index} className="work">
+                        <div className="work__user">{work.userName}</div>
+                        <div className="work__info">
+                          <div className="item">
+                            <div className="title">Date</div>
+                            <div className="number">{work.date}</div>
                           </div>
                         </div>
+                        <div className="work__info">
+                          <div className="item">
+                            <div className="title">Check In</div>
+                            <div className="number">{work.checkIn}</div>
+                          </div>
+                          <div className="item">
+                            <div className="title">Check Out</div>
+                            <div className="number">{work.checkOut}</div>
+                          </div>
+                        </div>
+                        <div className="work__info">
+                          <div className="item">
+                            <div className="title">Break time</div>
+                            <div className="number">
+                              {work.extraTime} minutes
+                            </div>
+                          </div>
+                          <div className="item">
+                            <div className="title">Total</div>
+                            <div className="number fixed">{work.totalTime}</div>
+                          </div>
+                        </div>
+                        <div className="work__controller">
+                          {work.checkOut !== "" ? (
+                            <div
+                              className="pay"
+                              onClick={() => handlePayMent(work)}
+                            >
+                              <FaYenSign />
+                            </div>
+                          ) : (
+                            <div></div>
+                          )}
+                          <div className="control__item_container">
+                            <div
+                              className="control__item edit"
+                              onClick={() => handleEdit(work)}
+                            >
+                              <FaPen />
+                            </div>
+                            <div
+                              className="control__item delete"
+                              onClick={() => handleDeleteWorking(work.id)}
+                            >
+                              <FaTimes />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="item__empty">Empty</div>
+                )}
               </div>
             )}
           </div>
