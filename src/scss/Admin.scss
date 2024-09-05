@@ -429,6 +429,23 @@ body{
                     }
                 }
             }
+            .item__name_list{
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 3rem;
+                .item__name_item{
+                    font-size: 1.5rem;
+                    border: 1px solid $primary;
+                    padding: .5rem 1rem;
+                    border-radius: .5rem;
+                    font-weight: 600;
+                    &.active{
+                        background-color: $primary;
+                        color: $light;
+                    }
+                }
+            }
             .item__group{
                 display: flex;
                 align-items: center;

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../scss/Admin.scss";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   FaPen,
-  FaPenAlt,
   FaPlus,
   FaRegClock,
   FaRegUser,
@@ -12,7 +11,6 @@ import {
   FaYenSign,
 } from "react-icons/fa";
 import {
-  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -61,14 +59,16 @@ export default function Admin() {
   const [extra, setExtra] = useState(0);
   const [total, setTotal] = useState("");
   const [workingTimeId, setWorkingTimeId] = useState("");
+  const [isEditWorking, setIsEditWorking] = useState(false);
+  const [workingDate, setWorkingDate] = useState("");
+  const [userNameArray, setUserNameArray] = useState([]);
+  const [selectedUserName, setSelectedUserName] = useState("");
 
   //PAYMENT
   const [isPayment, setIsPayment] = useState(false);
   const [transportFree, setTransportFree] = useState(false);
   const [payment, setPayment] = useState(0);
   const [payDate, setPayDate] = useState("");
-
-  const { state } = useLocation();
 
   const navigate = useNavigate();
   const navigateToPage = (pageUrl, stateData) => {
@@ -79,6 +79,7 @@ export default function Admin() {
     getUsers();
     getWorkingTimeByDate(formatDate(startDate));
   }, [startDate]);
+
   //AUTO GENERATE STRING AS ID
   const generateRandomString = (length) => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -110,6 +111,9 @@ export default function Admin() {
       );
       setSalary(
         usersData.map((user) => ({ id: user.id, userSalary: user.userSalary }))
+      );
+      setUserNameArray(
+        usersData.map((user) => ({ id: user.id, userName: user.userName }))
       );
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -173,6 +177,35 @@ export default function Admin() {
       }
     }
   };
+  const handleAddWorking = async (e) => {
+    e.preventDefault();
+    try {
+      // Generate a unique user ID using Firestore's auto-generated ID
+      const userId = generateRandomString(20);
+
+      // Store user data in Firestore
+      await setDoc(doc(db, "workingTime", userId), {
+        userId: userId,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        totalTime: calculateTimeDifference(checkIn, checkOut, extra),
+        extraTime: extra,
+        date: workingDate,
+        userName: selectedUserName,
+      });
+      setCheckIn("");
+      setCheckOut("");
+      setExtra("");
+      setWorkingDate("");
+      setSelectedUserName("");
+      setIsEditWorking(false);
+      setIsWorkingTime(false);
+    } catch (err) {
+      // Handle any errors
+      setError("An error occurred. Please try again.");
+      console.error("Error adding user: ", err);
+    }
+  };
   //UPDATE USER
   const handleEditUser = (account) => {
     setUserId(account.id);
@@ -202,14 +235,16 @@ export default function Admin() {
   };
   //UPDATE WORKINGTIME
   const handleEdit = (work) => {
-    console.log(work.id);
+    console.log(work.date);
     setWorkingTimeId(work.id);
     setCheckIn(work.checkIn);
     setCheckOut(work.checkOut);
     setExtra(work.extraTime);
     setTotal(work.totalTime);
     setUserName(work.userName);
+    setWorkingDate(work.date);
     setIsWorkingTime(true);
+    setIsEditWorking(true);
   };
   const handleEditWorking = async () => {
     const wrokingTimeRef = doc(db, "workingTime", workingTimeId);
@@ -221,6 +256,10 @@ export default function Admin() {
     });
     setIsWorkingTime(false);
     getWorkingTimeByDate(formatDate(startDate));
+    setCheckIn("");
+    setCheckOut("");
+    setExtra("");
+    setWorkingDate("");
   };
   //ALSO DELETE USER AT AUTHENTICATION AND COLLECTION
   const handleDelete = async (account) => {
@@ -252,6 +291,9 @@ export default function Admin() {
   const handleCreate = () => {
     if (nav === 0) {
       setIsUserCreated(true);
+    } else {
+      setIsWorkingTime(true);
+      setIsEditWorking(false);
     }
   };
   //HANDLE CLOSE
@@ -413,14 +455,17 @@ export default function Admin() {
                 <FaPlus className="icon" onClick={handleCreate} />
               </div>
             ) : (
-              <div className="date__container">
-                Day:
-                <DatePicker
-                  className="date__picker"
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  dateFormat="M/d/yyyy"
-                />
+              <div className="nav__item">
+                <FaPlus className="icon" onClick={handleCreate} />
+                <div className="date__container">
+                  Day:
+                  <DatePicker
+                    className="date__picker"
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                    dateFormat="M/d/yyyy"
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -643,6 +688,15 @@ export default function Admin() {
         <div className="alert">
           <div className="alert__content">
             <div className="item__input">
+              <div className="item__input_lable">Date</div>
+              <input
+                placeholder="MM/DD/YYYY"
+                type="Working date"
+                value={workingDate}
+                onChange={(e) => setWorkingDate(e.target.value)}
+              />
+            </div>
+            <div className="item__input">
               <div className="item__input_lable">Check In</div>
               <input
                 type="check in"
@@ -666,13 +720,35 @@ export default function Admin() {
                 onChange={(e) => setExtra(e.target.value)}
               />
             </div>
+            <div className="item__input">
+              <div className="item__input_lable">Create for</div>
+            </div>
+            <div className="item__name_list">
+              {userNameArray.map((userName) => (
+                <div
+                  className={`item__name_item ${
+                    selectedUserName === userName.userName ? `active` : ``
+                  }`}
+                  key={userName.id}
+                  onClick={() => setSelectedUserName(userName.userName)}
+                >
+                  {userName.userName}
+                </div>
+              ))}
+            </div>
             <div className="btns__container">
               <div className="item__btn" onClick={handleClose}>
                 <div className="text close">cancel</div>
               </div>
-              <div className="item__btn" onClick={handleEditWorking}>
-                <div className="text create">edit</div>
-              </div>
+              {isEditWorking ? (
+                <div className="item__btn" onClick={handleEditWorking}>
+                  <div className="text create">edit</div>
+                </div>
+              ) : (
+                <div className="item__btn" onClick={handleAddWorking}>
+                  <div className="text create">create</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
