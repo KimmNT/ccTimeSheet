@@ -396,6 +396,7 @@ body{
             .item__input{
                 display: flex;
                 flex-direction: column;
+                gap: 1rem;
                 .item__input_lable{
                     font-size: 2rem;
                     font-weight: 600;

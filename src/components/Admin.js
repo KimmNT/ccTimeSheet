@@ -180,19 +180,19 @@ export default function Admin() {
   const handleAddWorking = async (e) => {
     e.preventDefault();
     try {
-      // Generate a unique user ID using Firestore's auto-generated ID
-      const userId = generateRandomString(20);
-
-      // Store user data in Firestore
-      await setDoc(doc(db, "workingTime", userId), {
-        userId: userId,
-        checkIn: checkIn,
-        checkOut: checkOut,
-        totalTime: calculateTimeDifference(checkIn, checkOut, extra),
-        extraTime: extra,
-        date: workingDate,
-        userName: selectedUserName,
-      });
+      //Store user data in Firestore
+      await setDoc(
+        doc(db, "workingTime", filterUserByUserName(selectedUserName)),
+        {
+          userId: filterUserByUserName(selectedUserName),
+          checkIn: checkIn,
+          checkOut: checkOut,
+          totalTime: calculateTimeDifference(checkIn, checkOut, extra),
+          extraTime: extra,
+          date: workingDate,
+          userName: selectedUserName,
+        }
+      );
       setCheckIn("");
       setCheckOut("");
       setExtra("");
@@ -200,6 +200,7 @@ export default function Admin() {
       setSelectedUserName("");
       setIsEditWorking(false);
       setIsWorkingTime(false);
+      getWorkingTimeByDate(formatDate(startDate));
     } catch (err) {
       // Handle any errors
       setError("An error occurred. Please try again.");
@@ -306,6 +307,11 @@ export default function Admin() {
     setUserContact("");
     setUserBank("");
     setUserSalary("");
+    setCheckIn("");
+    setCheckOut("");
+    setExtra("");
+    setSelectedUserName("");
+    setWorkingDate("");
     setIsWorkingTime(false);
   };
   //HANDLE PAYMENT
@@ -318,7 +324,6 @@ export default function Admin() {
     setCheckIn(work.checkIn);
     setCheckOut(work.checkOut);
     setIsPayment(true);
-    // console.log(work);
   };
   const handleCalculatePayment = () => {
     if (transportFree) {
@@ -405,11 +410,13 @@ export default function Admin() {
       String(value).toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
-
   const handleCheckboxChange = (e) => {
     setTransportFree(e.target.checked);
   };
-
+  const filterUserByUserName = (name) => {
+    const user = userNameArray.find((user) => user.userName === name);
+    return user ? user.id : null; // Return the userName if found, otherwise return null
+  };
   return (
     <div className="admin__container">
       <div className="admin__content">
@@ -687,17 +694,36 @@ export default function Admin() {
       {isWorkingTime ? (
         <div className="alert">
           <div className="alert__content">
+            {isEditWorking ? (
+              <></>
+            ) : (
+              <div className="item__input">
+                <div className="item__input_lable">Create for</div>
+                <div className="item__name_list">
+                  {userNameArray.map((userName) => (
+                    <div
+                      className={`item__name_item ${
+                        selectedUserName === userName.userName ? `active` : ``
+                      }`}
+                      key={userName.id}
+                      onClick={() => setSelectedUserName(userName.userName)}
+                    >
+                      {userName.userName}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="item__input">
-              <div className="item__input_lable">Date</div>
+              <div className="item__input_lable">Date (mm/dd/yyyy)</div>
               <input
-                placeholder="MM/DD/YYYY"
                 type="Working date"
                 value={workingDate}
                 onChange={(e) => setWorkingDate(e.target.value)}
               />
             </div>
             <div className="item__input">
-              <div className="item__input_lable">Check In</div>
+              <div className="item__input_lable">Check In (00:00:00)</div>
               <input
                 type="check in"
                 value={checkIn}
@@ -705,7 +731,7 @@ export default function Admin() {
               />
             </div>
             <div className="item__input">
-              <div className="item__input_lable">Check Out</div>
+              <div className="item__input_lable">Check Out (00:00:00)</div>
               <input
                 type="check out"
                 value={checkOut}
@@ -719,22 +745,6 @@ export default function Admin() {
                 value={extra}
                 onChange={(e) => setExtra(e.target.value)}
               />
-            </div>
-            <div className="item__input">
-              <div className="item__input_lable">Create for</div>
-            </div>
-            <div className="item__name_list">
-              {userNameArray.map((userName) => (
-                <div
-                  className={`item__name_item ${
-                    selectedUserName === userName.userName ? `active` : ``
-                  }`}
-                  key={userName.id}
-                  onClick={() => setSelectedUserName(userName.userName)}
-                >
-                  {userName.userName}
-                </div>
-              ))}
             </div>
             <div className="btns__container">
               <div className="item__btn" onClick={handleClose}>
