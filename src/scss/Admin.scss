@@ -539,11 +539,10 @@ body{
         justify-content: center;
         align-items: center;
         .salary{
-            width: 80%;
+            // width: 80%;
             position: relative;
             background: $light;
             padding: 3rem;
-            // width: 20%;
             display: flex;
             flex-direction: column;
             gap: 3rem;
@@ -553,7 +552,7 @@ body{
                 width: 100%;
                 align-items: center;
                 justify-content: space-between;
-                gap: 5rem;
+                gap: 10rem;
                 .title{
                     font-size: 2rem;
                 }
@@ -581,6 +580,7 @@ body{
                 align-items: center;
                 justify-content: space-between;
                 width: 100%;
+                gap: 20rem;
                 .result__btns{
                     display: flex;
                     flex-direction: column;
@@ -594,12 +594,13 @@ body{
                         font-weight: 600;
                         text-transform: uppercase;
                         border-radius: .5rem;
+                        background-color: $primary;
                         &.pay{
                             background: $primary;
                             color: $light;
                         }
                         &.cancel{
-                            color: $primary;
+                            color: $light;
                         }
                     }
                 }

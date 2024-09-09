@@ -80,6 +80,12 @@ export default function Admin() {
     getWorkingTimeByDate(formatDate(startDate));
   }, [startDate]);
 
+  useEffect(() => {
+    if (isPayment) {
+      setPayment(userSalary * total);
+    }
+  }, [isPayment]);
+
   //AUTO GENERATE STRING AS ID
   const generateRandomString = (length) => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -180,19 +186,17 @@ export default function Admin() {
   const handleAddWorking = async (e) => {
     e.preventDefault();
     try {
+      const randomId = generateRandomString(20);
       //Store user data in Firestore
-      await setDoc(
-        doc(db, "workingTime", filterUserByUserName(selectedUserName)),
-        {
-          userId: filterUserByUserName(selectedUserName),
-          checkIn: checkIn,
-          checkOut: checkOut,
-          totalTime: calculateTimeDifference(checkIn, checkOut, extra),
-          extraTime: extra,
-          date: workingDate,
-          userName: selectedUserName,
-        }
-      );
+      await setDoc(doc(db, "workingTime", randomId), {
+        userId: filterUserByUserName(selectedUserName),
+        checkIn: checkIn,
+        checkOut: checkOut,
+        totalTime: calculateTimeDifference(checkIn, checkOut, extra),
+        extraTime: extra,
+        date: workingDate,
+        userName: selectedUserName,
+      });
       setCheckIn("");
       setCheckOut("");
       setExtra("");
@@ -325,13 +329,13 @@ export default function Admin() {
     setCheckOut(work.checkOut);
     setIsPayment(true);
   };
-  const handleCalculatePayment = () => {
-    if (transportFree) {
-      setPayment(userSalary * total + 1000);
-    } else {
-      setPayment(userSalary * total);
-    }
-  };
+  // const handleCalculatePayment = () => {
+  //   if (transportFree) {
+  //     setPayment(userSalary * total + 1000);
+  //   } else {
+  //     setPayment(userSalary * total);
+  //   }
+  // };
 
   function calculateTimeDifference(startTime, endTime, extraTime = 0) {
     // Check if startTime and endTime are provided and are non-empty strings
@@ -723,7 +727,7 @@ export default function Admin() {
               />
             </div>
             <div className="item__input">
-              <div className="item__input_lable">Check In (00:00:00)</div>
+              <div className="item__input_lable">Clock-In (00:00:00)</div>
               <input
                 type="check in"
                 value={checkIn}
@@ -731,7 +735,7 @@ export default function Admin() {
               />
             </div>
             <div className="item__input">
-              <div className="item__input_lable">Check Out (00:00:00)</div>
+              <div className="item__input_lable">Clock-Out (00:00:00)</div>
               <input
                 type="check out"
                 value={checkOut}
@@ -789,20 +793,18 @@ export default function Admin() {
                 </div>
               </div>
             </div>
-            <div className="salary__item">
+            {/* <div className="salary__item">
               <div className="title">Transport</div>
               <input
                 type="checkbox"
                 checked={transportFree}
                 onChange={handleCheckboxChange}
               />
-            </div>
+            </div> */}
             <div className="line"></div>
             <div className="salary__result_container">
+              <div className="result__content">Total: {payment}¥</div>
               <div className="result__btns">
-                <div className="btn pay" onClick={handleCalculatePayment}>
-                  pay
-                </div>
                 <div
                   className="btn cancel"
                   onClick={() => {
@@ -810,10 +812,9 @@ export default function Admin() {
                     setPayment(0);
                   }}
                 >
-                  cancel
+                  <FaTimes />
                 </div>
               </div>
-              <div className="result__content">{payment}¥</div>
             </div>
           </div>
         </div>

@@ -262,7 +262,7 @@ export default function Home() {
                     <FaLongArrowAltUp />
                   </div>
                 </div>
-                <div className="btn__text">check-out now</div>
+                <div className="btn__text">Clock-Out now</div>
               </>
             ) : (
               <>
@@ -271,7 +271,7 @@ export default function Home() {
                     <FaLongArrowAltDown />
                   </div>
                 </div>
-                <div className="btn__text">check-in now</div>
+                <div className="btn__text">Clock-Out now</div>
               </>
             )}
           </div>
