@@ -282,7 +282,7 @@ export default function Home() {
               <div className="item__icon checkin">
                 <FaLongArrowAltDown />
               </div>
-              <div className="item__name">Check in</div>
+              <div className="item__name">Clock-In</div>
             </div>
             {checkInValue !== "" ? (
               <div className="item__number">{checkInValue}</div>
@@ -297,7 +297,7 @@ export default function Home() {
               <div className="item__icon checkin">
                 <FaLongArrowAltUp />
               </div>
-              <div className="item__name">Check out</div>
+              <div className="item__name">Clock-Out</div>
             </div>
             {checkOutValue !== "" ? (
               <div className="item__number">{checkOutValue}</div>
