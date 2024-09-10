@@ -271,7 +271,7 @@ export default function Home() {
                     <FaLongArrowAltDown />
                   </div>
                 </div>
-                <div className="btn__text">Clock-Out now</div>
+                <div className="btn__text">Clock-In now</div>
               </>
             )}
           </div>
