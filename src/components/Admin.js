@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import "../scss/Admin.scss";
 import { useNavigate } from "react-router-dom";
 import {
+  FaChartLine,
+  FaGlasses,
   FaPen,
   FaPlus,
   FaRegClock,
@@ -23,6 +25,7 @@ import {
 import { db } from "../firebase";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 
 export default function Admin() {
   //SYSTEM
@@ -70,6 +73,15 @@ export default function Admin() {
   const [payment, setPayment] = useState(0);
   const [payDate, setPayDate] = useState("");
 
+  //REPORT
+  const [sortResult, setSortResult] = useState([]);
+  const [allWorkingTime, setAllWorkingTime] = useState([]);
+  const [totalWorkingTimeByDate, setTotalWorkingTimeByDate] = useState("");
+  const [totalIncomeByDate, setTotalIncomeByDate] = useState(0);
+  const [isReport, setIsReport] = useState(false);
+  const [fromDate, setFromDate] = useState(new Date());
+  const [toDate, setToDate] = useState(new Date());
+
   const navigate = useNavigate();
   const navigateToPage = (pageUrl, stateData) => {
     navigate(pageUrl, { state: stateData });
@@ -78,6 +90,7 @@ export default function Admin() {
   useEffect(() => {
     getUsers();
     getWorkingTimeByDate(formatDate(startDate));
+    getAllWorkingTime();
   }, [startDate]);
 
   useEffect(() => {
@@ -121,6 +134,24 @@ export default function Admin() {
       setUserNameArray(
         usersData.map((user) => ({ id: user.id, userName: user.userName }))
       );
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      // Handle error as needed
+    }
+  };
+  //GET USERS
+  const getAllWorkingTime = async () => {
+    try {
+      const data = await getDocs(collection(db, "workingTime"));
+      const usersData = data.docs.map((doc) => {
+        const userData = doc.data();
+        return {
+          id: doc.id,
+          ...userData,
+        };
+      });
+
+      setAllWorkingTime(usersData);
     } catch (error) {
       console.error("Error fetching users:", error);
       // Handle error as needed
@@ -329,14 +360,6 @@ export default function Admin() {
     setCheckOut(work.checkOut);
     setIsPayment(true);
   };
-  // const handleCalculatePayment = () => {
-  //   if (transportFree) {
-  //     setPayment(userSalary * total + 1000);
-  //   } else {
-  //     setPayment(userSalary * total);
-  //   }
-  // };
-
   function calculateTimeDifference(startTime, endTime, extraTime = 0) {
     // Check if startTime and endTime are provided and are non-empty strings
     if (
@@ -383,24 +406,42 @@ export default function Admin() {
     // Format output
     return `${hours}hrs ${minutes}mins ${seconds}s`;
   }
-  const convertToHours = (timeStr) => {
-    const hoursMatch = timeStr.match(/(\d+)\s*hrs/);
-    const minsMatch = timeStr.match(/(\d+)\s*mins/);
-    const secsMatch = timeStr.match(/(\d+)\s*s/);
+  //CONVERT TO HOUR
+  // const convertToHours = (timeStr) => {
+  //   const hoursMatch = timeStr.match(/(\d+)\s*hrs/);
+  //   const minsMatch = timeStr.match(/(\d+)\s*mins/);
+  //   const secsMatch = timeStr.match(/(\d+)\s*s/);
 
-    const hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
-    const minutes = minsMatch ? parseInt(minsMatch[1], 10) : 0;
-    const seconds = secsMatch ? parseInt(secsMatch[1], 10) : 0;
+  //   const hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
+  //   const minutes = minsMatch ? parseInt(minsMatch[1], 10) : 0;
+  //   const seconds = secsMatch ? parseInt(secsMatch[1], 10) : 0;
 
-    const totalHours = hours + minutes / 60 + seconds / 3600;
-    return totalHours.toFixed(2);
+  //   const totalHours = hours + minutes / 60 + seconds / 3600;
+  //   return totalHours.toFixed(2);
+  // };
+  const convertToHours = (totalTime) => {
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+
+    const hoursMatch = totalTime.match(/(\d+)hrs?/);
+    const minutesMatch = totalTime.match(/(\d+)mins?/);
+    const secondsMatch = totalTime.match(/(\d+)s/);
+
+    if (hoursMatch) hours = parseInt(hoursMatch[1], 10);
+    if (minutesMatch) minutes = parseInt(minutesMatch[1], 10);
+    if (secondsMatch) seconds = parseInt(secondsMatch[1], 10);
+
+    return hours + minutes / 60 + seconds / 3600;
   };
+  //FORMAT DATE
   const formatDate = (date) => {
     const day = date.getDate();
     const month = date.getMonth() + 1; // Months are zero-indexed
     const year = date.getFullYear();
     return `${month}/${day}/${year}`;
   };
+  //SEARCHING
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
@@ -414,12 +455,67 @@ export default function Admin() {
       String(value).toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
-  const handleCheckboxChange = (e) => {
-    setTransportFree(e.target.checked);
-  };
+  //CREATE WORKING TIME
   const filterUserByUserName = (name) => {
     const user = userNameArray.find((user) => user.userName === name);
     return user ? user.id : null; // Return the userName if found, otherwise return null
+  };
+  //CONVERT FROM INT TO STRING WITH WORKINGTIME
+  const convertTimeBack = (timeString) => {
+    console.log(timeString);
+    // Split the input by periods
+    const [hours, minutes, seconds] = timeString
+      .toString()
+      .split(".")
+      .map(Number);
+
+    // Provide default value of 0 for minutes if undefined
+    const formattedHours = hours || 0;
+    const formattedMinutes = minutes || 0;
+    const formattedSeconds = seconds || 0;
+
+    // Return formatted time string
+    return `${formattedHours}hrs ${formattedMinutes}mins ${formattedSeconds}s`;
+  };
+
+  //REPORT - CALCULATE SALARY ON MONTH
+  const getWorkingTimeByUser = (startDate, endDate, userId) => {
+    const salaryByUserId = salary.find((salary) => salary.id === userId);
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    let totalHours = 0;
+    const userAfterSort = [];
+
+    // Convert MM/DD/YYYY date format to Date object
+    function parseDate(dateString) {
+      const [month, day, year] = dateString.split("/").map(Number);
+      return new Date(year, month - 1, day); // month is 0-indexed
+    }
+
+    // Filter and sum totalTime for the specified user within the date range
+    allWorkingTime.forEach((item) => {
+      const itemDate = parseDate(item.date);
+
+      if (item.userId === userId && itemDate >= start && itemDate <= end) {
+        const hours = convertToHours(item.totalTime);
+        totalHours += hours;
+
+        // Push matching items to userAfterSort array
+        userAfterSort.push(item);
+      }
+    });
+    setSortResult(userAfterSort);
+    setTotalWorkingTimeByDate(convertTimeBack(totalHours.toFixed(2)));
+    setTotalIncomeByDate(
+      parseFloat(totalHours.toFixed(2)) * parseInt(salaryByUserId.userSalary)
+    );
+  };
+
+  const handleSortReport = () => {
+    getWorkingTimeByUser(fromDate, toDate, userId);
+    setIsReport(false);
   };
   return (
     <div className="admin__container">
@@ -449,23 +545,35 @@ export default function Admin() {
                   <FaRegClock />
                 </div>
               </div>
+              <div
+                onClick={() => setNav(2)}
+                className={`nav ${nav === 2 ? "active" : "unactive"}`}
+              >
+                <div className="btn__icon checkout">
+                  <FaChartLine />
+                </div>
+              </div>
             </div>
           </div>
           <div className="control__container">
-            <div className="search">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              <FaTimes className="clear" onClick={() => setSearchQuery("")} />
-            </div>
+            {nav === 2 ? (
+              <></>
+            ) : (
+              <div className="search">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+                <FaTimes className="clear" onClick={() => setSearchQuery("")} />
+              </div>
+            )}
             {nav === 0 ? (
               <div className="nav__item">
                 <FaPlus className="icon" onClick={handleCreate} />
               </div>
-            ) : (
+            ) : nav === 1 ? (
               <div className="nav__item">
                 <FaPlus className="icon" onClick={handleCreate} />
                 <div className="date__container">
@@ -478,6 +586,8 @@ export default function Admin() {
                   />
                 </div>
               </div>
+            ) : (
+              <></>
             )}
           </div>
         </div>
@@ -517,7 +627,7 @@ export default function Admin() {
                   ))}
                 </div>
               </div>
-            ) : (
+            ) : nav === 1 ? (
               <div className="manage__item ">
                 {filterWork.length > 0 ? (
                   <div className="item__work">
@@ -584,6 +694,67 @@ export default function Admin() {
                 ) : (
                   <div className="item__empty">Empty</div>
                 )}
+              </div>
+            ) : (
+              <div div className="manage__item">
+                <div className="report__list">
+                  {sortResult.map((report, index) => (
+                    <div className="report__item" key={index}>
+                      <div className="item__group">
+                        <div className="item__title">Date</div>
+                        <div className="item__value">{report.date}</div>
+                      </div>
+                      <div className="break"></div>
+                      <div className="item__group">
+                        <div className="item__title">Checkin</div>
+                        <div className="item__value">{report.checkIn}</div>
+                      </div>
+                      <div className="break"></div>
+                      <div className="item__group">
+                        <div className="item__title">Checkout</div>
+                        <div className="item__value">{report.checkOut}</div>
+                      </div>
+                      <div className="break"></div>
+                      <div className="item__group">
+                        <div className="item__title">Break time</div>
+                        <div className="item__value">
+                          {report.extraTime} minutes
+                        </div>
+                      </div>
+                      <div className="break"></div>
+                      <div className="item__group">
+                        <div className="item__title">Total working time</div>
+                        <div className="item__value">{report.totalTime}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="report__summary">
+                  <div className="report__summary_content">
+                    <div className="report__summary_item">
+                      <div className="summary__item_title">
+                        Total working time
+                      </div>
+                      <div className="summary__item_value">
+                        {totalWorkingTimeByDate}
+                      </div>
+                    </div>
+                    <div className="report__summary_item">
+                      <div className="summary__item_title">Total income</div>
+                      <div className="summary__item_value">
+                        {totalIncomeByDate}¥
+                      </div>
+                    </div>
+                    <div
+                      className="report__summary_item"
+                      onClick={() => setIsReport(true)}
+                    >
+                      <div className="summary__search">
+                        <FaMagnifyingGlass />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -820,6 +991,66 @@ export default function Admin() {
         </div>
       ) : (
         <></>
+      )}
+      {isReport && (
+        <div className="report__filter">
+          <div className="report__filter_content">
+            <div className="filter__item">
+              <div className="filter__title">Staff name</div>
+              <div className="filter__list">
+                {userNameArray.map((name, index) => (
+                  <div
+                    className="list__item"
+                    key={index}
+                    onClick={() => setUserId(name.id)}
+                  >
+                    <div
+                      className={`item__value ${
+                        name.id === userId ? `active` : `inactive`
+                      }`}
+                    >
+                      {name.userName}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="filter__item">
+              <div className="filter__title">Date</div>
+              <div className="filter__list">
+                <div className="list__item item__half">
+                  <div className="item__title">From date</div>
+                  <DatePicker
+                    className="filter__date_picker"
+                    selected={fromDate}
+                    onChange={(date) => setFromDate(date)}
+                    dateFormat="M/d/yyyy"
+                  />
+                </div>
+                <div className="list__item item__half">
+                  <div className="item__title">To date</div>
+                  <DatePicker
+                    className="filter__date_picker"
+                    selected={toDate}
+                    onChange={(date) => setToDate(date)}
+                    dateFormat="M/d/yyyy"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="filter__btn_container">
+              <div
+                className="filter__btn close"
+                onClick={() => setIsReport(false)}
+              >
+                close
+              </div>
+              <div className="filter__btn search" onClick={handleSortReport}>
+                search
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

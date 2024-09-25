@@ -69,28 +69,6 @@ export default function Home() {
     }
   }, [attendanceValue]);
 
-  // useEffect(() => {
-  //   if (isBreakTime) {
-  //     setBreakTimeValue(
-  //       calculateTimeDifference(checkInValue, checkOutValue, breakInput)
-  //     );
-  //   }
-  // }, [isBreakTime]);
-
-  // useEffect(() => {
-  //   if (checkInValue && checkOutValue && breakInput !== null) {
-  //     setBreakTimeValue(
-  //       calculateTimeDifference(checkInValue, checkOutValue, breakInput)
-  //     );
-  //   }
-  // }, [breakInput, checkInValue, checkOutValue, breakTimeValue]);
-
-  // useEffect(() => {
-  //   if (breakTimeValue !== "") {
-  //     handleCheckOut();
-  //   }
-  // }, [breakTimeValue]);
-
   // Get attendance status (check-in and check-out data) from Firestore
   const getAttendanceStatus = async () => {
     const attendacneRef = collection(db, "workingTime");
@@ -195,13 +173,18 @@ export default function Home() {
   };
 
   const handleSubmitBreak = () => {
+    setErr("");
     let checkInDate = new Date(`1970-01-01T${checkInValue}Z`);
     let checkOutDate = new Date(`1970-01-01T${formattedTime}Z`);
     // Calculate the difference in milliseconds
     let differenceInMillis = checkOutDate - checkInDate;
     // Convert the difference into minutes
     let differenceInMinutes = Math.floor(differenceInMillis / 60000);
-    if (breakInput < differenceInMinutes) {
+
+    console.log(differenceInMinutes);
+    if (breakInput === "") {
+      setErr(`Please enter your break time!`);
+    } else if (breakInput < differenceInMinutes && breakInput >= 0) {
       setIsBreakTime(false);
       handleCheckOut();
     } else {
