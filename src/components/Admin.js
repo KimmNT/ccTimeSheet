@@ -419,21 +419,6 @@ export default function Admin() {
   //   const totalHours = hours + minutes / 60 + seconds / 3600;
   //   return totalHours.toFixed(2);
   // };
-  const convertToHours = (totalTime) => {
-    let hours = 0;
-    let minutes = 0;
-    let seconds = 0;
-
-    const hoursMatch = totalTime.match(/(\d+)hrs?/);
-    const minutesMatch = totalTime.match(/(\d+)mins?/);
-    const secondsMatch = totalTime.match(/(\d+)s/);
-
-    if (hoursMatch) hours = parseInt(hoursMatch[1], 10);
-    if (minutesMatch) minutes = parseInt(minutesMatch[1], 10);
-    if (secondsMatch) seconds = parseInt(secondsMatch[1], 10);
-
-    return hours + minutes / 60 + seconds / 3600;
-  };
   //FORMAT DATE
   const formatDate = (date) => {
     const day = date.getDate();
@@ -460,22 +445,42 @@ export default function Admin() {
     const user = userNameArray.find((user) => user.userName === name);
     return user ? user.id : null; // Return the userName if found, otherwise return null
   };
+  const convertToHours = (totalTime) => {
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+
+    const hoursMatch = totalTime.match(/(\d+)hrs?/);
+    const minutesMatch = totalTime.match(/(\d+)mins?/);
+    const secondsMatch = totalTime.match(/(\d+)s/);
+
+    if (hoursMatch) hours = parseInt(hoursMatch[1], 10);
+    if (minutesMatch) minutes = parseInt(minutesMatch[1], 10);
+    if (secondsMatch) seconds = parseInt(secondsMatch[1], 10);
+
+    const timeConvertToNumber = hours + minutes / 60 + seconds / 3600;
+
+    return timeConvertToNumber;
+  };
   //CONVERT FROM INT TO STRING WITH WORKINGTIME
   const convertTimeBack = (timeString) => {
-    console.log(timeString);
     // Split the input by periods
-    const [hours, minutes, seconds] = timeString
+    const [hours, decimalMinutes] = timeString
       .toString()
       .split(".")
       .map(Number);
 
-    // Provide default value of 0 for minutes if undefined
-    const formattedHours = hours || 0;
-    const formattedMinutes = minutes || 0;
-    const formattedSeconds = seconds || 0;
+    // Calculate minutes from the decimal part, handle undefined or missing parts
+    const formattedHours = (hours || 0).toFixed(0); // Ensure no decimal places for hours
+    const formattedMinutes = decimalMinutes
+      ? (
+          (decimalMinutes * 60) /
+          Math.pow(10, decimalMinutes.toString().length)
+        ).toFixed(0)
+      : 0;
 
     // Return formatted time string
-    return `${formattedHours}hrs ${formattedMinutes}mins ${formattedSeconds}s`;
+    return `${formattedHours}hrs ${formattedMinutes}mins 0s`;
   };
 
   //REPORT - CALCULATE SALARY ON MONTH

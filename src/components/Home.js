@@ -174,21 +174,20 @@ export default function Home() {
 
   const handleSubmitBreak = () => {
     setErr("");
-    let checkInDate = new Date(`1970-01-01T${checkInValue}Z`);
-    let checkOutDate = new Date(`1970-01-01T${formattedTime}Z`);
-    // Calculate the difference in milliseconds
-    let differenceInMillis = checkOutDate - checkInDate;
-    // Convert the difference into minutes
-    let differenceInMinutes = Math.floor(differenceInMillis / 60000);
+    // let checkInDate = new Date(`1970-01-01T${checkInValue}Z`);
+    // let checkOutDate = new Date(`1970-01-01T${formattedTime}Z`);
+    // // Calculate the difference in milliseconds
+    // let differenceInMillis = checkOutDate - checkInDate;
+    // // Convert the difference into minutes
+    // let differenceInMinutes = Math.floor(differenceInMillis / 60000);
 
-    console.log(differenceInMinutes);
     if (breakInput === "") {
       setErr(`Please enter your break time!`);
-    } else if (breakInput < differenceInMinutes && breakInput >= 0) {
+    } else if (breakInput >= 0) {
       setIsBreakTime(false);
       handleCheckOut();
     } else {
-      setErr(`Break time have to greater than ${differenceInMinutes} minutes`);
+      setErr(`Break time must be greater than 0`);
     }
   };
 

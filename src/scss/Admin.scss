@@ -431,15 +431,22 @@ body{
                             align-items: center;
                             justify-content: space-between;
                             .report__summary_item{
+                                @media (max-width: $breakpoint-medium) {
+                                    flex-direction: column;
+                                  }
                                 background-color: $light;
                                 padding: 1rem 2rem;
                                 border-radius: 1rem;
                                 display: flex;
-                                flex-direction: column;
+                                align-items: center;
                                 gap: 1rem;
                                 .summary__item_title{
+                                    @media (max-width: $breakpoint-medium) {
+                                        flex-direction: column;
+                                        width: 70%;
+                                      }
                                     font-size: 1.5rem;
-                                    width: 70%;
+                                    // width: 100%;
                                 }
                                 .summary__item_value{
                                     font-size: 2rem;
@@ -555,6 +562,7 @@ body{
         display: flex;
         justify-content: center;
         align-items: center;
+        z-index: 100;
         .alert__content{
             position: relative;
             background: $light;
