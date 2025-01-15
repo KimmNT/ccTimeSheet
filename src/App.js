@@ -4,6 +4,7 @@ import Login from "./components/Login";
 import Home from "./components/Home";
 import Admin from "./components/Admin";
 import Test from "./components/Test";
+import Report from "./components/Report";
 
 export default function App() {
   // const currentUser = false;
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/admin-manage" element={<Admin />} />
+        <Route path="/admin-report" element={<Report />} />
         <Route path="/testing" element={<Test />} />
       </Routes>
     </BrowserRouter>

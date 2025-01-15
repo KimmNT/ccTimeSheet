@@ -17,6 +17,7 @@ html{
 
 body{
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    scroll-behavior: smooth;
 }
 
 .admin__container{
@@ -26,77 +27,47 @@ body{
     position: relative;
     .admin__content{
         width: 100%;
-        padding:30rem 0 10rem 0;
+        padding:10rem 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         .admin__header{
-            width: 100%;
             position: fixed;
-            top: 0;
-            background: $softWhite;
-            padding: 3rem 0;
-            border-bottom: .5rem solid $light;
+            bottom: 1rem;
             z-index: 99;
-            .admin__header_info{
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                max-width: 950px !important;
-                margin: 0 auto;
-                @media (max-width: $breakpoint-medium) {
-                    max-width: 350px !important;
-                    margin: 0 auto;
-                  }
-                .header__thumbnail{
-                    font-size: 3rem;
-                    font-weight: 600;
-                }
-                .header__back{
-                    width: 4rem;
-                    height: 4rem;
-                    border-radius: 50%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    background: $light;
-                    border: .2rem solid $danger;
-                    .header__back_icon{
-                        font-size: 2rem;
-                        color: #DD5746;
-                    }
-                }
-            }
             .admin__header_nav{
                 display: flex;
                 align-items: center;
-                justify-content: space-between;
+                // justify-content: space-between;
                 max-width: 950px !important;
                 margin: 0 auto;
-                padding-top: 3rem;
-                @media (max-width: $breakpoint-medium) {
-                    max-width: 350px !important;
-                    margin: 0 auto;
-                  }
-                  .nav__item{
+                .nav__item{
                     display: flex;
-                    gap: 3rem;
+                    gap: 2rem;
                     align-items: center;
+                    background: #eadcc8;
+                    padding:1rem 1.5rem;
+                    border-radius: 1rem;
                     .nav{
                         font-size: 2rem;
-                        width: 5rem;
-                        height: 5rem;
-                        border-radius: 50% ;
+                        width: 3.5rem;
+                        height: 3.5rem;
+                        border-radius: 1rem;
                         display: flex;
                         justify-content: center;
                         align-items: center;
+                        transition: all ease-in-out .5s;
                         &.active{
-                            background: $danger;
+                            background: $primary;
                             color: $light;
                         }
                         &.unactive{
                             background: $light;
-                            color: $danger;
+                            color: $dark;
+                        }
+                        &.logout{
+                            background: $danger;
+                            color: $light;
                         }
                     }
                     .icon{
@@ -108,85 +79,64 @@ body{
                     }
                 }
             }
-            .control__container{
+
+        }
+        .control__container{
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: $softWhite;
+            z-index: 99;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            border-bottom: .1rem solid $dark;
+            .search{
                 display: flex;
-                align-items: flex-end;
-                width: 100%;
-                justify-content: space-evenly;
-                @media (max-width: $breakpoint-medium) {
-                    align-items: center;
-                    flex-direction: column;
-                    justify-content: center;
-                    gap: 2rem;
-                  }
-                .search{
-                    width: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-around;
-                    gap: 1rem;
-                    // background: $light;
+                align-items: center;
+                gap: 2rem;
+                input{
+                    width: 100%;
+                    padding: 1rem .5rem;
+                    outline: none;
+                    border: none;
                     border-bottom: .2rem solid $dark;
-                    padding: 5rem 0 .5rem 0;
-                    @media (max-width: $breakpoint-medium) {
-                        max-width: 350px !important;
-                        margin: 0 auto;
-                      }
-                    input{
-                        outline: none;
-                        border: none;
-                        width: 80%;
-                        background: none;
-                        font-weight: 600;
-                    }
-                    .clear{
-                        font-size: 2rem;
-                    }
+                    background-color: transparent;
+                    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
                 }
-                .nav__item{
-                    display: flex;
-                    gap: 3rem;
-                    align-items: center;
-                    .nav{
-                        font-size: 2rem;
-                        width: 5rem;
-                        height: 5rem;
-                        border-radius: 50% ;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        &.active{
-                            background: $danger;
-                            color: $light;
-                        }
-                        &.unactive{
-                            background: $light;
-                            color: $danger;
-                        }
-                    }
-                    .icon{
-                        padding: 1rem 4rem;
-                        background: $primary;
-                        font-size: 2rem;
-                        border-radius: .5rem;
-                        color: $light;
-                    }
+                .clear{
+                    padding: 1rem 1.2rem;
+                    background-color: $danger;
+                    color: $light;
+                    border-radius: .5rem;
+                } 
+            }
+            .nav__item{
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 2rem;
+                .icon{
+                    padding: 1rem 3rem;
+                    background-color: $primary;
+                    color: $light;
+                    font-size: 1.5rem;
+                    border-radius: .5rem;
                 }
                 .date__container{
                     display: flex;
                     align-items: center;
-                    font-size: 2rem;
-                    background: $light;
-                    padding: .5rem 2rem;
-                    border-radius: .5rem;
-                    box-shadow: $boxShadow;
+                    gap: 1rem;
+                    font-size: 1.5rem;
+                    width: 40%;
                     .date__picker{
+                        padding:.2rem 1rem;
                         outline: none;
-                        text-align: center;
-                        border: none;
-                        background: none;
-                        padding: 0;
-                        font-size: 1.5rem;
+                    border: none;
+                    background-color: transparent;
+                    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+                    font-weight: 600;
                     }
                 }
             }
@@ -196,9 +146,8 @@ body{
             max-width: 950px !important;
             margin: 0 auto;
             @media (max-width: $breakpoint-medium) {
-                max-width: 350px !important;
+                max-width: 550px !important;
                 margin: 0 auto;
-                padding-top: 5rem;
               }
             .manage__content{
                 width: 100%;
@@ -216,10 +165,8 @@ body{
                         justify-content: space-between;
                         gap: 3rem;
                         .user{
-                            @media (max-width: $breakpoint-medium) {
-                                width: 100%;
-                              }
-                            width: 40%;
+                            flex-grow: 1;
+                            flex-basis: 200px;
                             display: flex;
                             align-items: center;
                             justify-content: space-between;
@@ -231,6 +178,7 @@ body{
                                 display: flex;
                                 flex-direction: column;
                                 gap: 2rem;
+                                width: 100%;
                                 .user__name{
                                     font-size: 2rem;
                                     font-weight: 600;
@@ -239,8 +187,9 @@ body{
                                     font-size: 1.5rem;
                                     font-weight: 600;
                                     display: flex;
-                                    justify-content: flex-start;
+                                    justify-content: space-between;
                                     align-items: center;
+                                    width: 100%;
                                     .text{
                                         background: $light;
                                         padding: .3rem 2rem;
@@ -248,29 +197,28 @@ body{
                                         border-radius: .5rem;
                                         border: .2rem solid $primary;
                                     }
-                                }
-                            }
-                            .user__btns{
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
-                                flex-direction: column;
-                                gap: 3rem;
-                                .user__btn{
-                                    width: 3rem;
-                                    height: 3rem;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                    font-size: 1.5rem;
-                                    border-radius: .5rem;
-                                    &.delete{
-                                        color: $light;
-                                        background: $danger;
-                                    }
-                                    &.edit{
-                                        color: $light;
-                                        background: $primary;
+                                    .user__btns{
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        gap: 1rem;
+                                        .user__btn{
+                                            width: 3rem;
+                                            height: 3rem;
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: center;
+                                            font-size: 1.5rem;
+                                            border-radius: .5rem;
+                                            &.delete{
+                                                color: $light;
+                                                background: $danger;
+                                            }
+                                            &.edit{
+                                                color: $light;
+                                                background: $primary;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -280,16 +228,11 @@ body{
                         display: flex;
                         align-items: center;
                         flex-wrap: wrap;
-                        // justify-content: space-between;
-                        gap: 2rem;
-                        @media (max-width: $breakpoint-medium) {
-                            gap: 5rem;
-                          }
+                        justify-content: space-between;
+                        gap: 3rem;
                         .work{
-                            @media (max-width: $breakpoint-medium) {
-                                width: 100%;
-                              }
-                            width: 25%;
+                            flex-grow: 1;
+                            flex-basis: 200px;
                             background: $light;
                             padding: 2rem 3rem;
                             border-radius: 1rem;
@@ -380,7 +323,7 @@ body{
                         align-items: center;
                         // justify-content: space-between;
                         flex-wrap: wrap;
-                        padding-bottom: 2rem;
+                        padding-bottom: 10rem;
                         gap: 10rem;
                         @media (max-width: $breakpoint-medium) {
                             justify-content: space-between;
@@ -388,7 +331,7 @@ body{
                           }
                         .report__item{
                             @media (max-width: $breakpoint-medium) {
-                                width: 30%;
+                                width: 35%;
                               }
                             width: 20%;
                             background-color: $light;
@@ -563,6 +506,7 @@ body{
         justify-content: center;
         align-items: center;
         z-index: 100;
+        overflow-y: auto;
         .alert__content{
             position: relative;
             background: $light;

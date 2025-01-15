@@ -3,7 +3,7 @@ import "../scss/Logo.scss";
 export default function Logo() {
   return (
     <div className="logo__container">
-      <div className="logo__text">ccTimeSheet</div>
+      <div className="logo__text">cctimesheet</div>
     </div>
   );
 }

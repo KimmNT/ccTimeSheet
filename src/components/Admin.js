@@ -511,6 +511,7 @@ export default function Admin() {
         userAfterSort.push(item);
       }
     });
+    userAfterSort.sort((a, b) => new Date(a.date) - new Date(b.date));
     setSortResult(userAfterSort);
     setTotalWorkingTimeByDate(convertTimeBack(totalHours.toFixed(2)));
     setTotalIncomeByDate(
@@ -522,18 +523,46 @@ export default function Admin() {
     getWorkingTimeByUser(fromDate, toDate, userId);
     setIsReport(false);
   };
+
   return (
     <div className="admin__container">
       <div className="admin__content">
+        <div className="control__container">
+          {nav === 2 ? (
+            <></>
+          ) : (
+            <div className="search">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              <FaTimes className="clear" onClick={() => setSearchQuery("")} />
+            </div>
+          )}
+          {nav === 0 ? (
+            <div className="nav__item">
+              <FaPlus className="icon" onClick={handleCreate} />
+            </div>
+          ) : nav === 1 ? (
+            <div className="nav__item">
+              <div className="date__container">
+                Day:
+                <DatePicker
+                  className="date__picker"
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  dateFormat="M/d/yyyy"
+                />
+              </div>
+              <FaPlus className="icon" onClick={handleCreate} />
+            </div>
+          ) : (
+            <></>
+          )}
+        </div>
         <div className="admin__header">
-          <div className="admin__header_info">
-            <div className="header__thumbnail">
-              Welcome back! {selectedDate}
-            </div>
-            <div className="header__back" onClick={handleLogOut}>
-              <FaSignOutAlt className="header__back_icon" />
-            </div>
-          </div>
           <div className="admin__header_nav">
             <div className="nav__item">
               <div
@@ -551,49 +580,18 @@ export default function Admin() {
                 </div>
               </div>
               <div
-                onClick={() => setNav(2)}
-                className={`nav ${nav === 2 ? "active" : "unactive"}`}
+                // onClick={() => setNav(2)}
+                onClick={() => navigateToPage("/admin-report")}
+                className={`nav`}
               >
                 <div className="btn__icon checkout">
                   <FaChartLine />
                 </div>
               </div>
+              <div className="nav logout" onClick={handleLogOut}>
+                <FaSignOutAlt className="btn__icon" />
+              </div>
             </div>
-          </div>
-          <div className="control__container">
-            {nav === 2 ? (
-              <></>
-            ) : (
-              <div className="search">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                />
-                <FaTimes className="clear" onClick={() => setSearchQuery("")} />
-              </div>
-            )}
-            {nav === 0 ? (
-              <div className="nav__item">
-                <FaPlus className="icon" onClick={handleCreate} />
-              </div>
-            ) : nav === 1 ? (
-              <div className="nav__item">
-                <FaPlus className="icon" onClick={handleCreate} />
-                <div className="date__container">
-                  Day:
-                  <DatePicker
-                    className="date__picker"
-                    selected={startDate}
-                    onChange={(date) => setStartDate(date)}
-                    dateFormat="M/d/yyyy"
-                  />
-                </div>
-              </div>
-            ) : (
-              <></>
-            )}
           </div>
         </div>
         <div className="admin__manage">
@@ -604,28 +602,26 @@ export default function Admin() {
                   {filterUser.map((user, index) => (
                     <div key={index} className="user">
                       <div className="user__info">
+                        <div className="user__name">User: {user.userEmail}</div>
                         <div className="user__name">
-                          Email: {user.userEmail}
-                        </div>
-                        <div className="user__name">
-                          Password: {user.userPassword}
+                          Pass: {user.userPassword}
                         </div>
                         <div className="user__role">
                           <div className="text">{user.role}</div>
-                        </div>
-                      </div>
-                      <div className="user__btns">
-                        <div
-                          className="user__btn edit"
-                          onClick={() => handleEditUser(user)}
-                        >
-                          <FaPen className="delete__btn_icon" />
-                        </div>
-                        <div
-                          className="user__btn delete"
-                          onClick={() => handleDelete(user)}
-                        >
-                          <FaTimes className="delete__btn_icon" />
+                          <div className="user__btns">
+                            <div
+                              className="user__btn edit"
+                              onClick={() => handleEditUser(user)}
+                            >
+                              <FaPen className="delete__btn_icon" />
+                            </div>
+                            <div
+                              className="user__btn delete"
+                              onClick={() => handleDelete(user)}
+                            >
+                              <FaTimes className="delete__btn_icon" />
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

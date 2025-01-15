@@ -24,27 +24,36 @@ export default function Login() {
     navigate(pageUrl, { state: stateData });
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    const userRef = collection(db, "users");
-    const roleQuery = query(
-      userRef,
-      where("userEmail", "==", email),
-      where("userPassword", "==", password)
-    );
-    const querySnapshot = await getDocs(roleQuery);
-    // Handle querySnapshot data here
-    querySnapshot.forEach((doc) => {
-      doc.data().role === "admin"
-        ? navigateToPage("/admin-manage", {
-            userId: doc.data().id,
-            userName: doc.data().userName,
-          })
-        : navigateToPage("/home", {
-            userId: doc.data().id,
-            userName: doc.data().userName,
-          });
-    });
+  const handleLogin = async () => {
+    try {
+      const userRef = collection(db, "users");
+      const roleQuery = query(
+        userRef,
+        where("userEmail", "==", email),
+        where("userPassword", "==", password)
+      );
+      const querySnapshot = await getDocs(roleQuery);
+      // Handle querySnapshot data here
+      querySnapshot.forEach((doc) => {
+        doc.data().role === "admin"
+          ? navigateToPage("/admin-manage", {
+              userId: doc.data().id,
+              userName: doc.data().userName,
+            })
+          : navigateToPage("/home", {
+              userId: doc.data().id,
+              userName: doc.data().userName,
+            });
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleLogin();
+    }
   };
 
   return (
@@ -72,6 +81,7 @@ export default function Login() {
                 type={passwordDisplay ? `text` : `password`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
               {passwordDisplay ? (
                 <div

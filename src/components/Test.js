@@ -1,61 +1,33 @@
-import React, { useState } from "react";
+import React from "react";
+import * as XLSX from "xlsx";
 
-const Test = () => {
-  const [items] = useState([
-    {
-      name: "Item 1",
-      createdDate: "2023-07-01",
-    },
-    {
-      name: "Item 2",
-      createdDate: "2023-07-02",
-    },
-    {
-      name: "Item 3",
-      createdDate: "2023-07-03",
-    },
-  ]);
+const App = () => {
+  // Data array
+  const people = [
+    { id: 1, name: "Alice", age: 25, gender: "female", role: "user" },
+    { id: 2, name: "Bob", age: 30, gender: "male", role: "admin" },
+    { id: 3, name: "Charlie", age: 35, gender: "male", role: "user" },
+  ];
 
-  const findItems = (searchTerm, searchType) => {
-    return items.filter((item) => {
-      if (searchType === "name") {
-        return item.name.includes(searchTerm);
-      } else if (searchType === "createdDate") {
-        return item.createdDate.includes(searchTerm);
-      }
-      return false;
-    });
+  // Function to download Excel file
+  const downloadExcel = () => {
+    // Convert the data array to a worksheet
+    const worksheet = XLSX.utils.json_to_sheet(people);
+
+    // Create a new workbook and append the worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "People Data");
+
+    // Write the workbook and trigger download
+    XLSX.writeFile(workbook, "PeopleData.xlsx");
   };
 
   return (
     <div>
-      <h1>Items</h1>
-      <ul>
-        {items.map((item, index) => (
-          <li key={index}>
-            {item.name} - {item.createdDate}
-          </li>
-        ))}
-      </ul>
-      <h2>Search Results</h2>
-      <h3>Find by Name Contains ("Item"):</h3>
-      <ul>
-        {findItems("Item", "name").map((item, index) => (
-          <li key={index}>
-            {item.name} - {item.createdDate}
-          </li>
-        ))}
-      </ul>
-      <h3>Find by Created Date Contains ("2023-07"):</h3>
-      <ul>
-        {findItems("2023-07", "createdDate").map((item, index) => (
-          <li key={index}>
-            {item.name} - {item.createdDate}
-          </li>
-        ))}
-      </ul>
+      <h1>Download Excel Example</h1>
+      <button onClick={downloadExcel}>Download Excel</button>
     </div>
   );
 };
 
-export default Test;
+export default App;
